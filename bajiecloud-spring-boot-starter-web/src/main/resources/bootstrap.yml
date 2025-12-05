@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: ${APP_NAME:your-service}
+  cloud:
+    nacos:
+      # 服务发现配置
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:mse.cn-hangzhou.aliyuncs.com:8848}
+        namespace: ${NACOS_NAMESPACE:dev}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+        username: ${NACOS_DISCOVERY_USERNAME:}
+        password: ${NACOS_DISCOVERY_PASSWORD:}
+        enabled: true
+
+      # 配置中心配置
+      config:
+        server-addr: ${NACOS_CONFIG_SERVER_ADDR:${spring.cloud.nacos.discovery.server-addr}}
+        namespace: ${NACOS_CONFIG_NAMESPACE:${spring.cloud.nacos.discovery.namespace}}
+        group: ${NACOS_CONFIG_GROUP:${spring.cloud.nacos.discovery.group}}
+        username: ${NACOS_CONFIG_USERNAME:${spring.cloud.nacos.config.username:}}
+        password: ${NACOS_CONFIG_PASSWORD:${spring.cloud.nacos.config.password:}}
+        file-extension: yaml
+        timeout: 3000
+        refresh-enabled: true
+        enabled: true
+
+# 阿里云 MSE 特定配置
+aliyun:
+  mse:
+    region: ${MSE_REGION:cn-hangzhou}
+    instance-id: ${MSE_INSTANCE_ID:}
+
+# 日志配置
+logging:
+  level:
+    com.alibaba.cloud.nacos: INFO

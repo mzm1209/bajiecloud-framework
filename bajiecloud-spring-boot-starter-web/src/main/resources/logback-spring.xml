@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 定义应用名称 -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="bajiezu-cloud"/>
+    
+    <!-- 开发环境配置 -->
+    <springProfile name="dev">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] ${APP_NAME} com.bajie.cloud.%logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/${APP_NAME}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>logs/${APP_NAME}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>100MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] ${APP_NAME} %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+    
+    <!-- 测试和生产环境配置 -->
+    <springProfile name="test | prod">
+        <!-- SLS Appender配置 -->
+        <appender name="SLS" class="com.aliyun.openservices.log.logback.LoghubAppender">
+            <project>${LOG_PROJECT}</project>
+            <logStore>${LOG_STORE}</logStore>
+            <endpoint>${LOG_ENDPOINT}</endpoint>
+            <accessKeyId>${LOG_ACCESS_KEY_ID}</accessKeyId>
+            <accessKeySecret>${LOG_ACCESS_KEY_SECRET}</accessKeySecret>
+            <topic>${APP_NAME}</topic>
+            <source>${HOSTNAME}</source>
+            <timeFormat>yyyy-MM-dd'T'HH:mm:ss.SSS'Z'</timeFormat>
+            <timeZone>UTC</timeZone>
+            <packageTimeoutInMS>3000</packageTimeoutInMS>
+            <logsCountPerPackage>4096</logsCountPerPackage>
+            <logsBytesPerPackage>5242880</logsBytesPerPackage>
+            <memPoolSizeInByte>104857600</memPoolSizeInByte>
+            <retryTimes>3</retryTimes>
+            <maxReservedAttempts>10</maxReservedAttempts>
+        </appender>
+        
+        <root level="INFO">
+            <appender-ref ref="SLS"/>
+        </root>
+    </springProfile>
+</configuration>

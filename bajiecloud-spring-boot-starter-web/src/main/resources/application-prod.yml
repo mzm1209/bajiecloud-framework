@@ -1,0 +1,31 @@
+# 生产环境配置 - 连接统一生产数据库
+spring:
+  cloud:
+    nacos:
+      discovery:
+        namespace: prod
+      config:
+        namespace: prod
+  datasource:
+    url: jdbc:mysql://prod-db-cluster:3306/your_service_prod?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 20
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+logging:
+  level:
+    com.bajie: INFO
+    org.springframework: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+

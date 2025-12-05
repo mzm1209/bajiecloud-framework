@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.bajiezu.cloud</groupId>
+    <artifactId>bajiecloud-stone</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>bajiecloud-framework</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+
+  <description>该包是技术组件，每个子包，代表一个组件。每个组件包括两部分：
+        1. core 包：是该组件的核心封装
+        2. config 包：是该组件基于 Spring 的配置
+
+        技术组件，也分成两类：
+        1. 框架组件：和我们熟悉的 MyBatis、Redis 等等的拓展
+        2. 业务组件：和业务相关的组件的封装，例如说数据字典、操作日志等等。
+        如果是业务组件，Maven 名字会包含 biz</description>
+
+  <modules>
+    <module>bajiecloud-common</module>
+    <!--        <module>bajiecloud-spring-boot-starter-env</module>-->
+    <!--        <module>bajiecloud-spring-boot-starter-mybatis</module>-->
+    <!--        <module>bajiecloud-spring-boot-starter-redis</module>-->
+    <module>bajiecloud-spring-boot-starter-web</module>
+    <module>bajiecloud-spring-boot-starter-security</module>
+    <!--        <module>bajiecloud-spring-boot-starter-websocket</module>-->
+
+    <!--        <module>bajiecloud-spring-boot-starter-monitor</module>-->
+    <!--            <module>bajiecloud-spring-boot-starter-protection</module>-->
+    <!--        <module>yudao-spring-boot-starter-job</module>-->
+    <!--        <module>yudao-spring-boot-starter-mq</module>-->
+    <module>bajiecloud-spring-boot-starter-rpc</module>
+
+    <!--        <module>yudao-spring-boot-starter-excel</module>-->
+    <!--        <module>yudao-spring-boot-starter-test</module>-->
+
+    <!--        <module>yudao-spring-boot-starter-biz-data-permission</module>-->
+    <!--        <module>yudao-spring-boot-starter-biz-ip</module>-->
+  </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.ekryd.sortpom</groupId>
+        <artifactId>sortpom-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <!-- Maven Failsafe Plugin (用于运行集成测试) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+
+      <!-- Maven Resources Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+      </plugin>
+
+      <!-- JaCoCo Maven Plugin (用于代码覆盖率检查) -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <!-- 开发环境 profile -->
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <mse.nacos.server-addr>127.0.0.1:8848</mse.nacos.server-addr>
+        <nacos.namespace>dev</nacos.namespace>
+        <spring.profiles.active>dev</spring.profiles.active>
+      </properties>
+    </profile>
+
+    <!-- 测试环境 profile -->
+    <profile>
+      <id>test</id>
+      <properties>
+        <mse.nacos.server-addr>nacos-test.example.com:8848</mse.nacos.server-addr>
+        <nacos.namespace>test</nacos.namespace>
+        <spring.profiles.active>test</spring.profiles.active>
+      </properties>
+    </profile>
+
+    <!-- 生产环境 profile -->
+    <profile>
+      <id>prod</id>
+      <properties>
+        <mse.nacos.server-addr>nacos-prod.example.com:8848</mse.nacos.server-addr>
+        <nacos.namespace>prod</nacos.namespace>
+        <spring.profiles.active>prod</spring.profiles.active>
+      </properties>
+    </profile>
+  </profiles>
+</project>

@@ -1,0 +1,53 @@
+# 默认配置 - 所有环境通用设置
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${mse.nacos.server-addr:nacos-test.example.com:8848}
+        namespace: test
+        group: DEFAULT_GROUP
+      config:
+        server-addr: ${mse.nacos.server-addr:nacos-test.example.com:8848}
+        namespace: test
+        group: DEFAULT_GROUP
+        file-extension: yaml
+  application:
+    name: @project.artifactId@
+  profiles:
+    active: @spring.profiles.active@
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      pool-name: HikariPool
+      auto-commit: true
+      validation-timeout: 3000
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+mybatis-plus:
+  mapper-locations:
+    - classpath*:mapper/*.xml
+    - classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+  global-config:
+    db-config:
+      id-type: AUTO
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationAndValidation
+  expiration: 86400000 # 24小时
+
+redisson:
+  config: |
+    singleServerConfig:
+      address: "redis://${spring.data.redis.host}:${spring.data.redis.port}"
+      password: ${spring.data.redis.password}
+      database: ${spring.data.redis.database}
+

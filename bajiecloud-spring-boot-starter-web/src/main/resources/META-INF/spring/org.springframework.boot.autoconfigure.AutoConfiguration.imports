@@ -1,0 +1,2 @@
+com.bajiezu.cloud.framework.web.config.BajiezuWebAutoConfiguration
+com.bajiezu.cloud.framework.jackson.config.BajieCloudJacksonAutoConfiguration
