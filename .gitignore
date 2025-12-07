@@ -1,0 +1,72 @@
+### === 操作系统生成文件 === ###
+# Windows
+[Dd]esktop.ini
+Thumbs.db
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+
+### === IDE/编辑器文件 === ###
+# IntelliJ IDEA
+.idea/
+/.idea/
+*.iws
+*.iml
+*.ipr
+*.classpath
+*.project
+*.settings/
+.vscode/
+*.swp
+*.swo
+*~
+
+### === 构建工具 === ###
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/tmp/
+
+
+### === 日志文件 === ###
+*.log
+logs/
+log/
+*.logs
+
+### === 临时文件 === ###
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+.~lock.*
+
+# Spring Boot Actuator
+heapdump*
+*.hprof
+
+### === Docker/K8s === ###
+# Docker
+Dockerfile.local
+docker-compose.override.yml
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+

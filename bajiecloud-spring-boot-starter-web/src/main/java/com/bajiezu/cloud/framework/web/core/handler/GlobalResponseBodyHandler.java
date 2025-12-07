@@ -1,6 +1,6 @@
 package com.bajiezu.cloud.framework.web.core.handler;
 
-import com.bajie.cloud.common.web.pojo.CommonResult;
+import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.framework.web.core.util.WebFrameworkUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

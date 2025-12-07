@@ -1,6 +1,6 @@
 package com.bajiezu.cloud.framework.web.core.filter;
 
-import com.bajie.cloud.common.util.servlet.ServletUtils;
+import com.bajiezu.cloud.common.util.servlet.ServletUtils;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,62 +15,62 @@ import java.io.InputStreamReader;
  */
 public class CacheRequestBodyWrapper extends HttpServletRequestWrapper {
 
-    /**
-     * 缓存的内容
-     */
-    private final byte[] body;
+  /**
+   * 缓存的内容
+   */
+  private final byte[] body;
 
-    public CacheRequestBodyWrapper(HttpServletRequest request) {
-        super(request);
-        body = ServletUtils.getBodyBytes(request);
-    }
+  public CacheRequestBodyWrapper(HttpServletRequest request) {
+    super(request);
+    body = ServletUtils.getBodyBytes(request);
+  }
 
-    @Override
-    public BufferedReader getReader() {
-        return new BufferedReader(new InputStreamReader(this.getInputStream()));
-    }
+  @Override
+  public BufferedReader getReader() {
+    return new BufferedReader(new InputStreamReader(this.getInputStream()));
+  }
 
-    @Override
-    public int getContentLength() {
+  @Override
+  public int getContentLength() {
+    return body.length;
+  }
+
+  @Override
+  public long getContentLengthLong() {
+    return body.length;
+  }
+
+  @Override
+  public ServletInputStream getInputStream() {
+    final ByteArrayInputStream inputStream = new ByteArrayInputStream(body);
+    // 返回 ServletInputStream
+    return new ServletInputStream() {
+
+      @Override
+      public int read() {
+        return inputStream.read();
+      }
+
+      @Override
+      public boolean isFinished() {
+        return false;
+      }
+
+      @Override
+      public boolean isReady() {
+        return false;
+      }
+
+      @Override
+      public void setReadListener(ReadListener readListener) {
+      }
+
+      @Override
+      public int available() {
         return body.length;
-    }
+      }
 
-    @Override
-    public long getContentLengthLong() {
-        return body.length;
-    }
-
-    @Override
-    public ServletInputStream getInputStream() {
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(body);
-        // 返回 ServletInputStream
-        return new ServletInputStream() {
-
-            @Override
-            public int read() {
-                return inputStream.read();
-            }
-
-            @Override
-            public boolean isFinished() {
-                return false;
-            }
-
-            @Override
-            public boolean isReady() {
-                return false;
-            }
-
-            @Override
-            public void setReadListener(ReadListener readListener) {
-            }
-
-            @Override
-            public int available() {
-                return body.length;
-            }
-
-        };
-    }
+    };
+  }
 
 }

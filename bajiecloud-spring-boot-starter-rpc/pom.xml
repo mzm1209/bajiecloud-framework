@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.bajiezu.cloud</groupId>
-    <artifactId>bajiecloud-stone</artifactId>
+    <artifactId>bajiecloud-framework</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>bajiecloud-spring-boot-starter-rpc</artifactId>

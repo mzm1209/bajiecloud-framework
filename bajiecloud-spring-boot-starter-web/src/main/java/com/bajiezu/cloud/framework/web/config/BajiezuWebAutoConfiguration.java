@@ -1,6 +1,6 @@
 package com.bajiezu.cloud.framework.web.config;
 
-import com.bajie.cloud.common.constants.WebFilterOrderEnum;
+import com.bajiezu.cloud.common.constants.WebFilterOrderEnum;
 import com.bajiezu.cloud.framework.web.core.filter.CacheRequestBodyFilter;
 import com.bajiezu.cloud.framework.web.core.handler.GlobalResponseBodyHandler;
 import jakarta.servlet.Filter;
@@ -62,7 +62,6 @@ public class BajiezuWebAutoConfiguration {
     return createFilterBean(new CacheRequestBodyFilter(),
         WebFilterOrderEnum.REQUEST_BODY_CACHE_FILTER);
   }
-
 
 
 }

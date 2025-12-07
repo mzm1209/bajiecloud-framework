@@ -37,7 +37,8 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: AUTO
-      logic-delete-value: 1
+      logic-delete-field: delete_flag #全局逻辑删除字段名
+      logic-delete-value: UNIX_TIMESTAMP()
       logic-not-delete-value: 0
 
 jwt:

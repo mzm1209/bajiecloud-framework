@@ -1,5 +1,8 @@
 package com.bajiezu.cloud.framework.security.rpc;
 
+import static com.bajiezu.cloud.common.web.cloud.constants.RpcConstants.FEGIN_REQUEST_HEADER;
+
+import com.bajiezu.cloud.common.context.RequestContext;
 import com.bajiezu.cloud.framework.security.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import feign.RequestInterceptor;
@@ -22,6 +25,8 @@ public class LoginUserRequestInterceptor implements RequestInterceptor {
     }
     // 传递 token 到被调用的服务
     requestTemplate.header(SecurityFrameworkUtils.LOGIN_USER_HEADER, user.getToken());
+    requestTemplate.header("X-Request-ID", RequestContext.getRequestId());
+    requestTemplate.header(FEGIN_REQUEST_HEADER, "feign");
   }
 
 }

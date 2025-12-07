@@ -1,8 +1,8 @@
 package com.bajiezu.cloud.framework.jackson.config;
 
-import com.bajie.cloud.common.util.json.databind.NumberSerializer;
-import com.bajie.cloud.common.util.json.databind.TimestampLocalDateTimeDeserializer;
-import com.bajie.cloud.common.util.json.databind.TimestampLocalDateTimeSerializer;
+import com.bajiezu.cloud.common.util.json.databind.NumberSerializer;
+import com.bajiezu.cloud.common.util.json.databind.TimestampLocalDateTimeDeserializer;
+import com.bajiezu.cloud.common.util.json.databind.TimestampLocalDateTimeSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
