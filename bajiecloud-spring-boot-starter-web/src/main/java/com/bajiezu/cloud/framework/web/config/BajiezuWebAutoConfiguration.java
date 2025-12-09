@@ -3,7 +3,14 @@ package com.bajiezu.cloud.framework.web.config;
 import com.bajiezu.cloud.common.constants.WebFilterOrderEnum;
 import com.bajiezu.cloud.framework.web.core.filter.CacheRequestBodyFilter;
 import com.bajiezu.cloud.framework.web.core.handler.GlobalResponseBodyHandler;
+import jakarta.annotation.Resource;
 import jakarta.servlet.Filter;
+import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.redisson.spring.starter.RedissonProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -14,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @AutoConfiguration
+@Slf4j
 public class BajiezuWebAutoConfiguration {
 
   /**
@@ -22,14 +30,16 @@ public class BajiezuWebAutoConfiguration {
   @Value("${spring.application.name}")
   private String applicationName;
 
+  // ========== Filter 相关 ==========
+  @Resource
+  private RedissonProperties redissonProperties;
+
   public static <T extends Filter> FilterRegistrationBean<T> createFilterBean(T filter,
       Integer order) {
     FilterRegistrationBean<T> bean = new FilterRegistrationBean<>(filter);
     bean.setOrder(order);
     return bean;
   }
-
-  // ========== Filter 相关 ==========
 
   @Bean
   public GlobalResponseBodyHandler<?> globalResponseBodyHandler() {
@@ -63,5 +73,12 @@ public class BajiezuWebAutoConfiguration {
         WebFilterOrderEnum.REQUEST_BODY_CACHE_FILTER);
   }
 
+  @Bean
+  public RedissonClient redissonClient() throws IOException {
+    Config config = Config.fromYAML(redissonProperties.getConfig());
+    RedissonClient redisson = Redisson.create(config);
+    log.info("[redissonClient][创建 RedissonClient({}) 成功]", redisson);
+    return redisson;
 
+  }
 }

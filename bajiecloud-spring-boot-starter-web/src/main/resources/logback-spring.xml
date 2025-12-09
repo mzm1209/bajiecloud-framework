@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!-- 定义应用名称 -->
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="bajiezu-cloud"/>
+    <property name="APP_NAME" value="${spring.application.name:-system}" />
     <!-- 定义公共的pattern字符串 -->
     <property name="COMMON_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] ${APP_NAME} %logger{36} - %msg%n"/>
      <!-- 1. 专门用于 Feign Access 日志的 Appender，输出到独立文件 -->

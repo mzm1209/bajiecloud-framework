@@ -12,9 +12,7 @@ spring:
         group: DEFAULT_GROUP
         file-extension: yaml
   application:
-    name: @project.artifactId@
-  profiles:
-    active: @spring.profiles.active@
+    name: bajie-cloud
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
