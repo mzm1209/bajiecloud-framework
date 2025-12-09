@@ -14,34 +14,34 @@ import java.util.Arrays;
 @Getter
 public enum BusinessPartnerTypeEnum implements ArrayValuable<Integer> {
 
-  PLATFORM(1, "平台"),
-  MERCHANT(2, "商户"),
-  SUPPLIER(3, "供应商"),
-  LAW_FIRM(4, "司法律所"),
-  THIRD_PARTY_COLLECTION(5, "委外催收"),
-  ASSIGNMENT_OF_DEBT(6, "债权转让");
+    PLATFORM(1, "平台"),
+    MERCHANT(2, "商户"),
+    SUPPLIER(3, "供应商"),
+    LAW_FIRM(4, "司法律所"),
+    THIRD_PARTY_COLLECTION(5, "委外催收"),
+    ASSIGNMENT_OF_DEBT(6, "债权转让");
 
 
-  public static final Integer[] ARRAYS = Arrays.stream(values())
-      .map(BusinessPartnerTypeEnum::getValue)
-      .toArray(Integer[]::new);
+    public static final Integer[] ARRAYS = Arrays.stream(values())
+            .map(BusinessPartnerTypeEnum::getValue)
+            .toArray(Integer[]::new);
 
-  /**
-   * 类型
-   */
-  private final Integer value;
-  /**
-   * 类型名
-   */
-  private final String name;
+    /**
+     * 类型
+     */
+    private final Integer value;
+    /**
+     * 类型名
+     */
+    private final String name;
 
-  public static BusinessPartnerTypeEnum valueOf(Integer value) {
-    return ArrayUtil.firstMatch(userType -> userType.getValue().equals(value),
-        BusinessPartnerTypeEnum.values());
-  }
+    public static BusinessPartnerTypeEnum valueOf(Integer value) {
+        return ArrayUtil.firstMatch(partnerType -> partnerType.getValue().equals(value),
+                BusinessPartnerTypeEnum.values());
+    }
 
-  @Override
-  public Integer[] array() {
-    return ARRAYS;
-  }
+    @Override
+    public Integer[] array() {
+        return ARRAYS;
+    }
 }
