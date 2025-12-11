@@ -1,0 +1,3 @@
+com.bajiezu.cloud.framework.security.config.BajieCloudSecurityAutoConfiguration
+com.bajiezu.cloud.framework.security.config.BajieSecurityRpcAutoConfiguration
+com.bajiezu.cloud.framework.security.config.BajieWebSecurityConfigurerAdapter
