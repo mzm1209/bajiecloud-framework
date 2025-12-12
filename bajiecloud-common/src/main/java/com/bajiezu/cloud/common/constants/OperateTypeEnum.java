@@ -17,12 +17,12 @@ public enum OperateTypeEnum implements ArrayValuable<Integer> {
     SUBMIT(2, "提交");
 
 
-    public static final Integer[] ARRAYS = Arrays.stream(values()).map(OperateTypeEnum::getStatus).toArray(Integer[]::new);
+    public static final Integer[] ARRAYS = Arrays.stream(values()).map(OperateTypeEnum::getType).toArray(Integer[]::new);
 
     /**
      * 状态值
      */
-    private final Integer status;
+    private final Integer type;
     /**
      * 状态名
      */
