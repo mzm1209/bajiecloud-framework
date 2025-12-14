@@ -1,17 +1,17 @@
 // RedisService.java
 package com.bajiezu.cloud.framework.security.service;
 
-import com.bajiezu.cloud.framework.security.LoginUser;
+import com.bajiezu.cloud.framework.security.po.LoginUser;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-
 @Service
 @RequiredArgsConstructor
 public class RedisService {
+
   private static final String USER_KEY_PREFIX = "bajie:auth:user:";
   private final RedissonClient redissonClient;
 
@@ -21,11 +21,12 @@ public class RedisService {
     bucket.set(user, duration);
   }
 
-  public LoginUser<?> getUser(String token) {
+  public LoginUser<?> getUser(String token, Duration duration) {
     String key = USER_KEY_PREFIX + token;
     RBucket<LoginUser<?>> bucket = redissonClient.getBucket(key);
-    return bucket.get();
+    return bucket.getAndExpire(duration);
   }
+
 
   public void deleteUser(String token) {
     String key = USER_KEY_PREFIX + token;

@@ -1,85 +1,128 @@
 package com.bajiezu.cloud.framework.security.filter;
 
+import static com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeConstants.UNAUTHORIZED;
+
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.util.servlet.ServletUtils;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
-import com.bajiezu.cloud.framework.security.LoginUser;
 import com.bajiezu.cloud.framework.security.context.LoginUserContext;
+import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.service.RedisService;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.List;
-
-import static com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeConstants.UNAUTHORIZED;
-
 /**
- * Token 过滤器，验证 token 的有效性 验证通过后，获得 {@link com.bajiezu.cloud.framework.security.LoginUser} 信息，并加入到
- * Spring Security 上下文
+ * Token 过滤器，验证 token 的有效性 验证通过后，获得 {@link LoginUser} 信息，并加入到 Spring Security 上下文
  */
 @RequiredArgsConstructor
 @Slf4j
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private final RedisService redisService;
+  private final RedisService redisService;
+  private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+  @Setter
+  private Set<String> permitAllPaths;
+  @Setter
+  private Set<String> noNeedLoginPath;
 
-    @Setter
-    private List<String> permitAllPaths;
+  /**
+   * 登录有效期，各个需要登录的业务需要自行设置
+   */
+  @Setter
+  private Duration tokenExpireDuration = Duration.ofDays(1);
 
-    @Override
-    @SuppressWarnings("NullableProblems")
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain chain)
-            throws IOException, ServletException {
-        // 情况一，基于 header[login-user] 获得用户，例如说来自 Gateway 或者其它服务透传
+  @Override
+  @SuppressWarnings("NullableProblems")
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain chain)
+      throws IOException, ServletException {
+    // 情况一，基于 header[login-user] 获得用户，例如说来自 Gateway 或者其它服务透传
+    String requestUri = request.getRequestURI();
+    if (isSwaggerPath(requestUri)
+        || permitAllPaths.contains(requestUri)) {
+      chain.doFilter(request, response);
+      return;
+    }
+    log.info("TokenAuthenticationFilter,requestUri:{}", requestUri);
+    try {
+      LoginUser<?> loginUser = buildLoginUserByHeader(request);
+      if (loginUser != null) {
+        // 设置到 Spring Security 上下文
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken(
+                loginUser,
+                null,
+                getAuthorities(loginUser)
+            );
 
-        log.info("TokenAuthenticationFilter,requestUri:{}", request.getRequestURI());
-        if (SecurityFrameworkUtils.NOT_NEED_LOGIN_PATHS.contains(request.getRequestURI())
-            || permitAllPaths.contains(request.getRequestURI())
-            || request.getRequestURI().startsWith("/swagger-ui")
-            || request.getRequestURI().startsWith("/v3/api-docs")) {
-            chain.doFilter(request, response);
-            return;
-        }
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        try {
-            LoginUser<?> loginUser = buildLoginUserByHeader(request);
+        // 设置到 ThreadLocal 上下文
+        LoginUserContext.setLoginUser(loginUser);
 
-            // 情况二，基于 Token 获得用户
-            // 注意，这里主要满足直接使用 Nginx 直接转发到 Spring Cloud 服务的场景。
-            if (loginUser == null) {
-                CommonResult<?> result = CommonResult.error(UNAUTHORIZED);
-                ServletUtils.writeJSON(response, result);
-                return;
-            }
-            LoginUserContext.setLoginUser(loginUser);
-            // 继续过滤链
-            chain.doFilter(request, response);
-        } finally {
-            LoginUserContext.clear();
-        }
-
+        log.debug("user:{} authenticate success", loginUser.getUsername());
+        chain.doFilter(request, response);
+      } else {
+        log.warn("no user info found by url:{}", requestUri);
+        ServletUtils.writeJSON(response, CommonResult.error(UNAUTHORIZED));
+      }
+      // 继续过滤链
+    } finally {
+      LoginUserContext.clear();
     }
 
+  }
 
-    @SneakyThrows
-    private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {
-        String token = SecurityFrameworkUtils.getToken(request,
-                SecurityFrameworkUtils.LOGIN_USER_HEADER,
-                SecurityFrameworkUtils.TOKEN_PARAMETER_NAME);
-        if (StrUtil.isEmpty(token)) {
-            return null;
-        }
-        return redisService.getUser(token);
+
+  /**
+   * 判断是否是 Swagger 相关路径
+   */
+  private boolean isSwaggerPath(String requestUri) {
+    return noNeedLoginPath.stream().anyMatch(path -> antPathMatcher.match(path, requestUri));
+  }
+
+
+  @SneakyThrows
+  private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {
+    String token = SecurityFrameworkUtils.getToken(request,
+        SecurityFrameworkUtils.LOGIN_USER_HEADER,
+        SecurityFrameworkUtils.TOKEN_PARAMETER_NAME);
+    if (StrUtil.isEmpty(token)) {
+      return null;
     }
+    return redisService.getUser(token, tokenExpireDuration);
+  }
+
+  /**
+   * 获取权限列表
+   */
+  private Collection<? extends GrantedAuthority> getAuthorities(LoginUser<?> loginUser) {
+    if (loginUser.getPermissions() == null) {
+      return Collections.emptyList();
+    }
+    return loginUser.getPermissions().stream()
+        .map(SimpleGrantedAuthority::new)
+        .toList();
+  }
 
 }

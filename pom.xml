@@ -85,31 +85,16 @@
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
-      <properties>
-        <mse.nacos.server-addr>127.0.0.1:8848</mse.nacos.server-addr>
-        <nacos.namespace>dev</nacos.namespace>
-        <spring.profiles.active>dev</spring.profiles.active>
-      </properties>
     </profile>
 
     <!-- 测试环境 profile -->
     <profile>
       <id>test</id>
-      <properties>
-        <mse.nacos.server-addr>nacos-test.example.com:8848</mse.nacos.server-addr>
-        <nacos.namespace>test</nacos.namespace>
-        <spring.profiles.active>test</spring.profiles.active>
-      </properties>
     </profile>
 
     <!-- 生产环境 profile -->
     <profile>
       <id>prod</id>
-      <properties>
-        <mse.nacos.server-addr>nacos-prod.example.com:8848</mse.nacos.server-addr>
-        <nacos.namespace>prod</nacos.namespace>
-        <spring.profiles.active>prod</spring.profiles.active>
-      </properties>
     </profile>
   </profiles>
 </project>

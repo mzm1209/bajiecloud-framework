@@ -8,6 +8,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.slf4j.MDC;
 
@@ -26,7 +27,7 @@ public class RequestContextFilter implements Filter {
       // 设置MDC上下文
       MDC.put(REQUEST_ID_KEY, requestId);
       RequestContext.setRequestId(requestId);
-
+      RequestContext.setRequestTime(LocalDateTime.now());
       chain.doFilter(request, response);
     } finally {
       // 清理MDC上下文

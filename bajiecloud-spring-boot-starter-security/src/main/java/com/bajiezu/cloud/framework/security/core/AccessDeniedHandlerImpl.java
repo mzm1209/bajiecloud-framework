@@ -6,10 +6,8 @@ import static com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeCo
 import com.bajiezu.cloud.common.util.servlet.ServletUtils;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.framework.security.context.LoginUserContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -30,11 +28,10 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
   @Override
   public void handle(HttpServletRequest request, HttpServletResponse response,
-      AccessDeniedException e)
-      throws IOException, ServletException {
+      AccessDeniedException e) {
     // 打印 warn 的原因是，不定期合并 warn，看看有没恶意破坏
-    log.warn("[commence][访问 URL({}) 时，用户({}) 权限不够]", request.getRequestURI(),
-        LoginUserContext.getLoginUserId(), e);
+    log.warn("[commence][user have no permission to access, user:{}  URL:{}]",
+        LoginUserContext.getUserId(), request.getRequestURI(), e);
     // 返回 403
     ServletUtils.writeJSON(response, CommonResult.error(FORBIDDEN));
   }

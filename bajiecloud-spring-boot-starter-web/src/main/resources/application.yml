@@ -1,52 +1,111 @@
-# 默认配置 - 所有环境通用设置
 spring:
   cloud:
     nacos:
-      discovery:
-        server-addr: ${mse.nacos.server-addr:nacos-test.example.com:8848}
-        namespace: test
-        group: DEFAULT_GROUP
+      # ========== 配置中心 ==========
       config:
-        server-addr: ${mse.nacos.server-addr:nacos-test.example.com:8848}
-        namespace: test
-        group: DEFAULT_GROUP
-        file-extension: yaml
-  application:
-    name: bajie-cloud
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      pool-name: HikariPool
-      auto-commit: true
-      validation-timeout: 3000
+        # MSE Nacos 地址
+        server-addr: ${MSE_NACOS_SERVER_ADDR}
+        # 个人namespace（每个开发人员自己指定）
+        namespace: ${NACOS_NAMESPACE}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
 
-server:
-  port: 8080
-  servlet:
-    context-path: /
+        # 启用配置刷新
+        refresh-enabled: true
 
-mybatis-plus:
-  mapper-locations:
-    - classpath*:mapper/*.xml
-    - classpath*:mapper/**/*.xml
-  configuration:
-    map-underscore-to-camel-case: true
-    cache-enabled: false
-  global-config:
-    db-config:
-      id-type: AUTO
-      logic-delete-field: delete_flag #全局逻辑删除字段名
-      logic-delete-value: UNIX_TIMESTAMP()
-      logic-not-delete-value: 0
+        # 鉴权配置（如果 MSE 开启了鉴权）
+        username: ${NACOS_USERNAME:}
+        password: ${NACOS_PASSWORD:}
+        # 或者使用 AccessKey/SecretKey（阿里云鉴权方式）
+        access-key: ${ALIBABA_CLOUD_ACCESS_KEY:}
+        secret-key: ${ALIBABA_CLOUD_SECRET_KEY:}
 
-jwt:
-  secret: mySecretKeyForJWTTokenGenerationAndValidation
-  expiration: 86400000 # 24小时
+        # 长轮询超时时间（毫秒）
+        config-long-poll-timeout: 30000
 
-redisson:
-  config: |
-    singleServerConfig:
-      address: "redis://${spring.data.redis.host}:${spring.data.redis.port}"
-      password: ${spring.data.redis.password}
-      database: ${spring.data.redis.database}
+        # 配置重试时间（毫秒）
+        config-retry-time: 2000
+
+        # 最大重试次数
+        max-retry: 3
+
+        # 端点配置
+        endpoint: ${NACOS_ENDPOINT:}  # 集群端点
+
+        # 上下文路径（如果 Nacos 有上下文路径）
+        context-path: ${NACOS_CONTEXT_PATH:/nacos}
+
+        # 编码
+        encode: ${NACOS_ENCODE:UTF-8}
+
+
+      # ========== 服务发现 ==========
+      discovery:
+        # 使用和 Config 相同的地址
+        server-addr: ${spring.cloud.nacos.config.server-addr}
+        namespace: ${spring.cloud.nacos.config.namespace}
+        group: ${spring.cloud.nacos.config.group}
+
+        # 服务注册配置
+        # 服务名称（默认使用 spring.application.name）
+        service: ${spring.application.name}
+
+        # 服务分组（用于区分不同环境）
+        cluster-name: ${NACOS_CLUSTER_NAME:DEFAULT}
+
+        # 元数据
+        metadata:
+          version: 1.0.0
+          env: ${spring.profiles.active}
+
+        # 注册的IP地址（可选，默认自动获取）
+        ip: ${NACOS_DISCOVERY_IP}
+
+        # 是否注册为临时实例（默认 true，非持久化实例）
+        ephemeral: ${NACOS_DISCOVERY_EPHEMERAL:true}
+
+        # 心跳间隔（毫秒）
+        heart-beat-interval: ${NACOS_HEART_BEAT_INTERVAL:5000}
+
+        # 心跳超时时间（毫秒）
+        heart-beat-timeout: ${NACOS_HEART_BEAT_TIMEOUT:15000}
+
+        # IP 删除超时时间（毫秒）
+        ip-delete-timeout: ${NACOS_IP_DELETE_TIMEOUT:30000}
+
+        # 服务实例权重（1-100）
+        weight: ${NACOS_DISCOVERY_WEIGHT:1.0}
+
+        # 是否启用
+        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+
+        # 注册前检查服务名是否合法
+        register-enabled: ${NACOS_REGISTER_ENABLED:true}
+
+        # 是否启用日志
+        log-name: ${NACOS_DISCOVERY_LOG_NAME:mse-discovery-log}
+
+        # 鉴权配置（同 Config）
+        username: ${spring.cloud.nacos.config.username}
+        password: ${spring.cloud.nacos.config.password}
+        access-key: ${spring.cloud.nacos.config.access-key}
+        secret-key: ${spring.cloud.nacos.config.secret-key}
+
+        # 端点
+        endpoint: ${spring.cloud.nacos.config.endpoint}
+
+        # 是否启用安全传输
+        secure: ${NACOS_DISCOVERY_SECURE:false}
+
+  config:
+    import:
+      - optional:nacos:common.yml?group=COMMON_GROUP&namespace=common
+      - optional:nacos:common-redis.yml?group=COMMON_GROUP&namespace=common
+      - optional:nacos:common-datasource.yml?group=COMMON_GROUP&namespace=common
+      # swagger api 配置
+      - optional:nacos:common-api-doc.yml?group=COMMON_GROUP&namespace=common
+      # 服务监控监控 actuator
+      - optional:nacos:actuator.yml?group=COMMON_GROUP&namespace=common
+      - optional:nacos:common-${spring.profiles.active:dev}.yml?group=COMMON_GROUP&namespace=common
+      - optional:nacos:${spring.application.name}.yml?group=DEFAULT_GROUP&namespace=common
+
 

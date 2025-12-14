@@ -3,7 +3,7 @@ package com.bajiezu.cloud.framework.security.rpc;
 import static com.bajiezu.cloud.common.web.cloud.constants.RpcConstants.FEGIN_REQUEST_HEADER;
 
 import com.bajiezu.cloud.common.context.RequestContext;
-import com.bajiezu.cloud.framework.security.LoginUser;
+import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;

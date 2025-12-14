@@ -7,10 +7,10 @@ import com.bajiezu.cloud.common.web.exception.ServiceException;
 import com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeConstants;
 import com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
+import lombok.Data;
 import lombok.SneakyThrows;
 
 /**
@@ -43,9 +43,14 @@ public class CommonResult<T> implements Serializable {
    */
   private String requestId;
 
+  private LocalDateTime requestTime;
+
+  private LocalDateTime responseTime = LocalDateTime.now();
+
   @SneakyThrows
   private CommonResult() {
     this.requestId = RequestContext.getRequestId();
+    this.requestTime = RequestContext.getRequestTime();
   }
 
   /**

@@ -1,0 +1,75 @@
+version: '3.8'
+
+x-common-variables: &common-variables
+  SPRING_PROFILES_ACTIVE: dev
+  MSE_NACOS_SERVER_ADDR: ${MSE_NACOS_SERVER_ADDR}
+  NACOS_NAMESPACE: ${NACOS_NAMESPACE}
+  NACOS_GROUP: ${NACOS_GROUP:-DEFAULT_GROUP}
+
+services:
+  # Nacos配置中心（如果使用本地Nacos，可选）
+
+  # Market服务 - 从Docker仓库拉取
+  market-service:
+    image: ${MARKET_SERVICE_IMAGE:-your-registry/market-service:dev-latest}
+    container_name: market-service-dev
+    environment:
+      <<: *common-variables
+      SERVER_PORT: ${MARKET_SERVICE_PORT}
+    ports:
+      - "${MARKET_SERVICE_PORT:-8081}:${MARKET_SERVICE_PORT}"
+    networks:
+      - microservice-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:{MARKET_SERVICE_PORT}/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      system-service:
+        condition: service_healthy
+
+  # 系统服务 - 从Docker仓库拉取
+  system-service:
+    image: ${SYSTEM_SERVICE_IMAGE:-your-registry/system-service:dev-latest}
+    container_name: system-service-dev
+    environment:
+      <<: *common-variables
+      SERVER_PORT: ${SYSTEM_SERVICE_PORT}
+    ports:
+      - "${SYSTEM_SERVICE_PORT}:${SYSTEM_SERVICE_PORT}"  # 动态映射端口
+    networks:
+      - microservice-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:{SYSTEM_SERVICE_PORT}/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    profiles: [ "optional" ]
+
+  # 订单服务 - 示例：如何添加更多服务
+  order-service:
+    image: ${ORDER_SERVICE_IMAGE:-your-registry/order-service:dev-latest}
+    container_name: order-service-dev
+    environment:
+      <<: *common-variables
+      SERVER_PORT: ${ORDER_SERVICE_PORT}
+    ports:
+      - "${ORDER_SERVICE_PORT:-8083}:${ORDER_SERVICE_PORT}"
+    networks:
+      - microservice-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:{SYSTEM_SERVICE_PORT}/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - market-service
+      - user-service
+    profiles: [ "optional" ]
+
+
+
+networks:
+  microservice-network:
+    driver: bridge

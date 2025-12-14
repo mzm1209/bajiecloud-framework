@@ -9,9 +9,9 @@ public interface WebFilterOrderEnum {
 
   int CORS_FILTER = Integer.MIN_VALUE;
 
-  int TRACE_FILTER = CORS_FILTER + 1;
+  int REQUEST_ID_FILTER = CORS_FILTER + 1;
 
-  int ENV_TAG_FILTER = TRACE_FILTER + 1;
+  int ENV_TAG_FILTER = REQUEST_ID_FILTER + 1;
 
   int REQUEST_BODY_CACHE_FILTER = Integer.MIN_VALUE + 500;
 

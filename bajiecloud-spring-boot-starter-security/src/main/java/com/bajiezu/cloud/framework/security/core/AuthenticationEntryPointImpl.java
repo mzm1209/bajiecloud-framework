@@ -28,7 +28,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response,
       AuthenticationException e) {
-    log.debug("[commence][访问 URL({}) 时，没有登录]", request.getRequestURI(), e);
+    log.debug("[commence][no authentication when access URL({}) ]", request.getRequestURI(), e);
     // 返回 401
     ServletUtils.writeJSON(response, CommonResult.error(UNAUTHORIZED));
   }
