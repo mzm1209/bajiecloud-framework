@@ -203,6 +203,7 @@ public class BajieWebSecurityConfigurerAdapter {
       if (urls.isEmpty()) {
         continue;
       }
+      urls.forEach(url -> urls.add(url.replace(contextPath, "")));
 
       // 特殊：使用 @RequestMapping 注解，并且未写 method 属性，此时认为都需要免登录
       Set<RequestMethod> methods = entry.getKey().getMethodsCondition().getMethods();
