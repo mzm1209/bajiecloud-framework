@@ -31,9 +31,12 @@ CREATE TABLE `customer`
     `merge_master_id` BIGINT(20)           DEFAULT NULL COMMENT ' 合并后的主账户ID ',
     `last_login_time` DATETIME             DEFAULT NULL COMMENT ' 最后登录时间 ',
     `last_login_ip`   VARCHAR(45)          DEFAULT NULL COMMENT ' 最后登录IP ',
-    `create_time`     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT ' 创建时间 ',
-    `update_time`     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT ' 更新时间 ',
     `version`         INT(11)     NOT NULL DEFAULT ' 0 ' COMMENT ' 版本号（乐观锁）',
+    `create_by`       bigint               DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`      bigint               DEFAULT -1 COMMENT '标签更新者',
+    `create_time`     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`      TINYINT(1)  NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_platform_uid` (`platform_uid`),
     UNIQUE KEY `uk_third_party_source` (`third_party_id`, `source_channel`),
@@ -56,8 +59,11 @@ CREATE TABLE `customer_log`
     `operate_type` VARCHAR(128)        DEFAULT NULL COMMENT '操作 类型',
     `operator_id`  BIGINT(64) NOT NULL COMMENT '操作人',
     `action_desc`  TEXT COMMENT '操作描述',
-    `create_time`  DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT ' 创建时间 ',
-    `update_time`  DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT ' 更新时间 ',
+    `create_by`    bigint              DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`   bigint              DEFAULT -1 COMMENT '标签更新者',
+    `create_time`  DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`  DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`   TINYINT(1) NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`id`),
     KEY `idx_create_time` (`create_time`),
     KEY `idx_customer_operate` (`customer_id`, `operate_type`)
@@ -77,8 +83,11 @@ CREATE TABLE `customer_ext`
     `ext_value`   TEXT COMMENT '扩展字段Value（JSON格式存储）',
     `source_from` VARCHAR(32)  NOT NULL COMMENT '数据来源：System, Alipay, JD, Wechat, Manual',
     `is_valid`    TINYINT(1)   NOT NULL DEFAULT '1' COMMENT '是否有效：0-否，1-是',
+    `create_by`   bigint                DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`  bigint                DEFAULT -1 COMMENT '标签更新者',
     `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`  TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_customer_ext_type_key` (`customer_id`, `ext_type`, `ext_key`),
     KEY `idx_customer_id` (`customer_id`),
@@ -123,9 +132,11 @@ CREATE TABLE `customer_address`
     `street_address`  VARCHAR(500) NOT NULL COMMENT '详细街道地址',
     `postal_code`     VARCHAR(20)           DEFAULT NULL COMMENT '邮政编码',
     `is_default`      TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '是否默认地址：0-否，1-是',
-    `is_deleted`      TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
+    `create_by`       bigint                DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`      bigint                DEFAULT -1 COMMENT '标签更新者',
     `create_time`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`      TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`id`),
     KEY `idx_customer_id` (`customer_id`, `is_deleted`),
     KEY `idx_customer_default` (`customer_id`, `is_default`),
@@ -152,8 +163,11 @@ CREATE TABLE `merge_log`
     `operator_type`            VARCHAR(20)          DEFAULT NULL COMMENT '操作人类型：System, User, Admin',
     `merge_remark`             VARCHAR(500)         DEFAULT NULL COMMENT '合并备注',
     `rollback_reason`          VARCHAR(500)         DEFAULT NULL COMMENT '回滚原因',
+    `create_by`                bigint               DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`               bigint               DEFAULT -1 COMMENT '标签更新者',
     `create_time`              DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`              DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`               TINYINT(1)  NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`merge_id`),
     KEY `idx_master_customer` (`master_customer_id`),
     KEY `idx_merge_time` (`create_time`),
@@ -163,24 +177,26 @@ CREATE TABLE `merge_log`
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户合并日志表';
 ```
 
-#### **label_info (客户标签表（客户和标签关联关系）)**
+#### **customer_label_info (客户标签表（客户和标签关联关系）)**
 
 ```sql
-CREATE TABLE `label_info`
+CREATE TABLE `customer_label_info`
 (
     `id`          BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `customer_id` BIGINT(20) NOT NULL COMMENT '客户ID',
     `label_id`    BIGINT(20) NOT NULL COMMENT '标签ID',
-    `created_at`  bigint              DEFAULT -1 COMMENT '添加标签的人',
+    `create_by`   bigint              DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`  bigint              DEFAULT -1 COMMENT '标签更新者',
     `create_time` DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`  TINYINT(1) NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_customer_labelk` (`customer_id`, `label_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='客户标签表（客户和标签关联关系）';
 ```
 
-#### **customer_label (客户标签表)**
+#### **label_info (客户标签表)**
 
 ```sql
 CREATE TABLE `label_info`
@@ -188,40 +204,17 @@ CREATE TABLE `label_info`
     `id`           BIGINT(20)   NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `name`         VARCHAR(50)  NOT NULL COMMENT '标签名称',
     `description`  VARCHAR(100) NOT NULL COMMENT '标签描述',
-    `label_type`   VARCHAR(500) NOT NULL COMMENT '标签类型，如：手动添加，规则自动添加，系统自动添加',
-    `label_status` VARCHAR(50)  NOT NULL COMMENT '标签状态：如启用，禁用',
-    `created_at`   bigint                DEFAULT -1 COMMENT '标签创建者',
-    `updated_at`   bigint                DEFAULT -1 COMMENT '标签更新者',
-    `delete_time`  bigint       NOT NULL default 0 COMMENT '删除时间',
+    `label_type`   tinyint(2)   NOT NULL DEFAULT 1 COMMENT '标签类型，如：1-手动添加',
+    `label_status` tinyint(1)   NOT NULL DEFAULT 1 COMMENT '标签状态：1-启用，0-禁用',
+    `create_by`    bigint                DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`   bigint                DEFAULT -1 COMMENT '标签更新者',
     `create_time`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`   TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_name` (`name`, `delete_time`)
+    UNIQUE KEY `uk_name` (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='标签信息表';
-
-
-#### **customer_tag (客户标签表，后续使用)**
-
-```sql
-CREATE TABLE `customer_tag`
-(
-    `id`           BIGINT(20)   NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `customer_id`  BIGINT(20)   NOT NULL COMMENT '客户ID',
-    `tag_category` VARCHAR(50)  NOT NULL COMMENT '标签分类：Behavior, Preference, Value, System',
-    `tag_key`      VARCHAR(100) NOT NULL COMMENT '标签Key',
-    `tag_value`    VARCHAR(500) NOT NULL COMMENT '标签Value',
-    `tag_source`   VARCHAR(50)  NOT NULL COMMENT '标签来源：System, Manual, Rule',
-    `expire_time`  DATETIME              DEFAULT NULL COMMENT '标签过期时间',
-    `create_time`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_customer_tag_key` (`customer_id`, `tag_category`, `tag_key`),
-    KEY `idx_customer_id` (`customer_id`),
-    KEY `idx_tag_key_value` (`tag_key`, `tag_value`),
-    KEY `idx_tag_category` (`tag_category`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='客户标签表';
 ```
 
 #### **customer_risk_result (客户标签日志表，后续使用)**
@@ -243,8 +236,11 @@ CREATE TABLE `customer_risk_result`
     `is_manual_review` TINYINT(1)           DEFAULT '0' COMMENT '是否触发人工审核：0-否，1-是',
     `review_status`    TINYINT(2)           DEFAULT NULL COMMENT '人工审核状态：1-待审核，2-审核通过，3-审核拒绝',
     `expire_time`      DATETIME             DEFAULT NULL COMMENT '风险结果过期时间（用于临时风险）',
+    `create_by`        bigint               DEFAULT -1 COMMENT '标签创建者',
+    `updated_by`       bigint               DEFAULT -1 COMMENT '标签更新者',
     `create_time`      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted`       TINYINT(1)  NOT NULL DEFAULT '0' COMMENT '是否删除：0-否，1-是',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_risk_event_id` (`risk_event_id`),
     KEY `idx_customer_id_scene_time` (`customer_id`, `risk_scene`, `create_time`),
