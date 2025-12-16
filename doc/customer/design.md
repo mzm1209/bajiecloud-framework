@@ -259,6 +259,57 @@ CREATE TABLE `customer_risk_result`
   DEFAULT CHARSET = utf8mb4 COMMENT ='客户风控结果记录表';
 ```
 
+#### **customer_balance (余额表)**
+
+```sql
+  CREATE TABLE `customer_balance`
+  (
+      `id`                bigint(20) NOT NULL AUTO_INCREMENT,
+      `customer_id`       bigint(20) NOT NULL COMMENT '客户ID',
+      `available_balance` bigint(20) NOT NULL DEFAULT '0.00' COMMENT '可用余额',
+      `frozen_balance`    bigint(20) NOT NULL DEFAULT '0.00' COMMENT '冻结余额',
+      `total_balance`     bigint(20) GENERATED ALWAYS AS (`available_balance` + `frozen_balance`) STORED COMMENT '总余额',
+      `currency`          varchar(3) NOT NULL DEFAULT 'CNY' COMMENT '币种',
+      `version`           int(11)    NOT NULL DEFAULT '0' COMMENT '版本号（乐观锁）',
+      `is_deleted`        tinyint(1) NOT NULL DEFAULT '0',
+      `create_time`       datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `update_time`       datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `uk_user_id` (`customer_id`),
+      KEY `idx_update_time` (`update_time`)
+  ) ENGINE = InnoDB COMMENT ='余额表';
+```
+
+#### **balance_transaction (余额变动明细表)**
+
+```sql
+  CREATE TABLE `balance_transaction`
+  (
+      `id`               bigint(20)  NOT NULL AUTO_INCREMENT,
+      `transaction_no`   varchar(64) NOT NULL COMMENT '交易流水号',
+      `customer_id`      bigint(20)  NOT NULL COMMENT '客户ID',
+      `transaction_type` tinyint(4)  NOT NULL COMMENT '交易类型：1-充值，2-消费，3-退款，4-冻结，5-解冻，6-提现',
+      `amount`           bigint(20)  NOT NULL COMMENT '交易金额',
+      `balance_before`   bigint(20)  NOT NULL COMMENT '交易前余额',
+      `balance_after`    bigint(20)  NOT NULL COMMENT '交易后余额',
+      `related_id`       varchar(64) COMMENT '关联业务ID（如订单号、充值单号等）',
+      `related_type`     varchar(32) COMMENT '关联业务类型',
+      `status`           tinyint(4)  NOT NULL DEFAULT '0' COMMENT '交易状态：0-处理中，1-成功，2-失败',
+      `remark`           varchar(500)         DEFAULT NULL COMMENT '备注',
+      `channel`          varchar(32)          DEFAULT NULL COMMENT '交易渠道',
+      `operator_id`      bigint(20)           DEFAULT NULL COMMENT '操作人ID',
+      `operator_type`    tinyint(4)           DEFAULT NULL COMMENT '操作人类型：1-用户，2-系统，3-运营',
+      `is_deleted`       tinyint(1)  NOT NULL DEFAULT '0',
+      `create_time`      datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `update_time`      datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `uk_transaction_no` (`transaction_no`),
+      KEY `idx_user_id_type` (`customer_id`, `transaction_type`),
+      KEY `idx_related` (`related_type`, `related_id`),
+      KEY `idx_create_time` (`create_time`)
+  ) ENGINE = InnoDB COMMENT ='余额变动明细表';
+```
+
 ## 2. 用户合并流程图
 
 ### 2.1 用户合并流程图
