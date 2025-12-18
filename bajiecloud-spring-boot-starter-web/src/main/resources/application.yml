@@ -58,7 +58,7 @@ spring:
           env: ${spring.profiles.active}
 
         # 注册的IP地址（可选，默认自动获取）
-        ip: ${NACOS_DISCOVERY_IP}
+        ip: ${spring.cloud.client.ip-address}  # 自动获取本机IP
 
         # 是否注册为临时实例（默认 true，非持久化实例）
         ephemeral: ${NACOS_DISCOVERY_EPHEMERAL:true}
