@@ -6,7 +6,7 @@ spring:
         # MSE Nacos 地址
         server-addr: ${MSE_NACOS_SERVER_ADDR}
         # 个人namespace（每个开发人员自己指定）
-        namespace: ${NACOS_NAMESPACE}
+        namespace: ${spring.profiles.active}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
 
         # 启用配置刷新
