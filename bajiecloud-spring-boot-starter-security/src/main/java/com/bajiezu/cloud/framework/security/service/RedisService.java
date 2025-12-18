@@ -2,40 +2,43 @@
 package com.bajiezu.cloud.framework.security.service;
 
 import com.bajiezu.cloud.framework.security.po.LoginUser;
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 @Service
 @RequiredArgsConstructor
 public class RedisService {
 
-  private static final String USER_KEY_PREFIX = "bajie:auth:user:";
-  private final RedissonClient redissonClient;
+    private static final String USER_KEY_PREFIX = "bajie:auth:user:";
+    private final RedissonClient redissonClient;
 
-  public void saveUser(String token, LoginUser<?> user, Duration duration) {
-    String key = USER_KEY_PREFIX + token;
-    RBucket<LoginUser<?>> bucket = redissonClient.getBucket(key);
-    bucket.set(user, duration);
-  }
+    public void saveUser(String token, LoginUser<?> user, Duration duration) {
+        String key = USER_KEY_PREFIX + token;
+        RBucket<LoginUser<?>> bucket = redissonClient.getBucket(key);
+        bucket.set(user, duration);
+    }
 
-  public LoginUser<?> getUser(String token, Duration duration) {
-    String key = USER_KEY_PREFIX + token;
-    RBucket<LoginUser<?>> bucket = redissonClient.getBucket(key);
-    return bucket.getAndExpire(duration);
-  }
+    public LoginUser<?> getUser(String token, Duration duration) {
+        String key = USER_KEY_PREFIX + token;
+        RBucket<LoginUser<?>> bucket = redissonClient.getBucket(key);
+        LoginUser<?> loginUser = bucket.get();
+        bucket.set(loginUser, duration);
+        return loginUser;
+    }
 
 
-  public void deleteUser(String token) {
-    String key = USER_KEY_PREFIX + token;
-    RBucket<LoginUser<?>> bucket = redissonClient.getBucket(key);
-    bucket.delete();
-  }
+    public void deleteUser(String token) {
+        String key = USER_KEY_PREFIX + token;
+        RBucket<LoginUser<?>> bucket = redissonClient.getBucket(key);
+        bucket.delete();
+    }
 
-  public boolean exists(String token) {
-    String key = USER_KEY_PREFIX + token;
-    return redissonClient.getBucket(key).isExists();
-  }
+    public boolean exists(String token) {
+        String key = USER_KEY_PREFIX + token;
+        return redissonClient.getBucket(key).isExists();
+    }
 }
