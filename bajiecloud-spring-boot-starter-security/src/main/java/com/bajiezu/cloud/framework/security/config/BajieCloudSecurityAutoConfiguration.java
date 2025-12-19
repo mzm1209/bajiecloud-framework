@@ -3,6 +3,8 @@ package com.bajiezu.cloud.framework.security.config;
 import com.bajiezu.cloud.framework.security.core.AuthenticationEntryPointImpl;
 import com.bajiezu.cloud.framework.security.filter.TokenAuthenticationFilter;
 import com.bajiezu.cloud.framework.security.service.RedisService;
+import com.bajiezu.cloud.framework.security.service.SecurityFrameworkService;
+import com.bajiezu.cloud.framework.security.service.SecurityFrameworkServiceImpl;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
@@ -27,44 +29,48 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 public class BajieCloudSecurityAutoConfiguration {
 
 
-  /**
-   * 认证失败处理类 Bean
-   */
-  @Bean
-  public AuthenticationEntryPoint authenticationEntryPoint() {
-    return new AuthenticationEntryPointImpl();
-  }
+    /**
+     * 认证失败处理类 Bean
+     */
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new AuthenticationEntryPointImpl();
+    }
 
-  /**
-   * 权限不够处理器 Bean
-   */
-  @Bean
-  public AccessDeniedHandler accessDeniedHandler() {
-    return new AccessDeniedHandlerImpl();
-  }
+    /**
+     * 权限不够处理器 Bean
+     */
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedHandlerImpl();
+    }
 
-  /**
-   * Spring Security 加密器 考虑到安全性，这里采用 BCryptPasswordEncoder 加密器
-   *
-   * @see <a href="http://stackabuse.com/password-encoding-with-spring-security/">Password Encoding
-   * with Spring Security</a>
-   */
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder(4);
-  }
+    /**
+     * Spring Security 加密器 考虑到安全性，这里采用 BCryptPasswordEncoder 加密器
+     *
+     * @see <a href="http://stackabuse.com/password-encoding-with-spring-security/">Password Encoding
+     * with Spring Security</a>
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(4);
+    }
 
-  @Bean
-  public RedisService redisService(RedissonClient redissonClient) {
-    return new RedisService(redissonClient);
-  }
+    @Bean
+    public RedisService redisService(RedissonClient redissonClient) {
+        return new RedisService(redissonClient);
+    }
 
-  /**
-   * Token 认证过滤器 Bean
-   */
-  @Bean
-  public TokenAuthenticationFilter authenticationTokenFilter(RedisService redisService) {
-    return new TokenAuthenticationFilter(redisService);
-  }
+    /**
+     * Token 认证过滤器 Bean
+     */
+    @Bean
+    public TokenAuthenticationFilter authenticationTokenFilter(RedisService redisService) {
+        return new TokenAuthenticationFilter(redisService);
+    }
 
+    @Bean("ss") // 使用 Spring Security 的缩写，方便使用
+    public SecurityFrameworkService securityFrameworkService() {
+        return new SecurityFrameworkServiceImpl();
+    }
 }
