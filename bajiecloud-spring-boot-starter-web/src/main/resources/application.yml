@@ -101,6 +101,7 @@ spring:
       - optional:nacos:common.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:common-redis.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:common-datasource.yml?group=COMMON_GROUP&namespace=common
+      - optional:nacos:common-oss.yml?group=COMMON_GROUP&namespace=common
       # swagger api 配置
       - optional:nacos:common-api-doc.yml?group=COMMON_GROUP&namespace=common
       # 服务监控监控 actuator
