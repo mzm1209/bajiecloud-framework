@@ -2,15 +2,21 @@ package com.bajiezu.cloud.framework.web.config;
 
 import com.bajiezu.cloud.common.constants.WebFilterOrderEnum;
 import com.bajiezu.cloud.common.filter.RequestContextFilter;
+import com.bajiezu.cloud.common.mybatis.config.MybatisPlusConfig;
 import com.bajiezu.cloud.framework.web.core.filter.CacheRequestBodyFilter;
 import com.bajiezu.cloud.framework.web.core.handler.GlobalExceptionHandler;
 import com.bajiezu.cloud.framework.web.core.handler.GlobalResponseBodyHandler;
+import com.bajiezu.cloud.rpc.mse.NacosThreadConfig;
+import com.fhs.trans.config.EasyTransMybatisPlusConfig;
+import com.fhs.trans.config.TransServiceConfig;
 import jakarta.servlet.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -18,6 +24,10 @@ import org.springframework.web.filter.CorsFilter;
 
 @AutoConfiguration
 @Slf4j
+@Import(value = {MybatisPlusConfig.class, //mybatis的配置
+    EasyTransMybatisPlusConfig.class, TransServiceConfig.class, //easytrans的配置
+    NacosThreadConfig.class}) //设置Nacos的线程
+@EnableDiscoveryClient
 public class BajiezuWebAutoConfiguration {
 
   /**

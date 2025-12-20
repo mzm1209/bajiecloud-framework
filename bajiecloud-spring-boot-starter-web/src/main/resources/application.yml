@@ -98,15 +98,21 @@ spring:
 
   config:
     import:
+      # 如果某些服务有一些特殊的配置，可以在自己项目下建立自己的yml文件，优先加载，如订单需要加载支付宝的账号配置，
+      # order 服务的classpath 下会有个 config-order-service.yml, 里面会配置从nacos拉取 支付相关信息，如密钥等
+      - optional:classpath:config-${spring.application.name}.yml
       - optional:nacos:common.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:common-redis.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:common-datasource.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:common-oss.yml?group=COMMON_GROUP&namespace=common
       # swagger api 配置
       - optional:nacos:common-api-doc.yml?group=COMMON_GROUP&namespace=common
+      # 分布式事务
+      #- optional:nacos:common-seata.yml?group=COMMON_GROUP&namespace=common
       # 服务监控监控 actuator
       - optional:nacos:actuator.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:common-${spring.profiles.active:dev}.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:${spring.application.name}.yml?group=DEFAULT_GROUP&namespace=common
+
 
 
