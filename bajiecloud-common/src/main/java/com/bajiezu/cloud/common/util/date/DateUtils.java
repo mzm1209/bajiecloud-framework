@@ -1,14 +1,23 @@
 package com.bajiezu.cloud.common.util.date;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-
-import java.time.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.experimental.UtilityClass;
 
 /**
  * 时间工具类
  */
+@UtilityClass
 public class DateUtils {
 
   /**
@@ -21,9 +30,37 @@ public class DateUtils {
    */
   public static final long SECOND_MILLIS = 1000;
 
-  public static final String FORMAT_YEAR_MONTH_DAY = "yyyy-MM-dd";
+  /**
+   * 默认的时间格式
+   */
+  public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
-  public static final String FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND = "yyyy-MM-dd HH:mm:ss";
+  /**
+   * 带时分秒的时间格式
+   */
+  public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+
+  /**
+   * 带毫秒的时间格式
+   */
+  public static final String YYYY_MM_DD_HH_MM_SS_SSS = "yyyy-MM-dd HH:mm:ss:SSS";
+
+  /**
+   * 此处一般是用来生成各种业务code使用的时间格式
+   */
+  public static final String YYMMDDHHMMSSSSS = "yyMMddHHmmssSSS";
+
+
+  private static final Map<String, DateTimeFormatter> DATE_FORMATTER_MAP = new HashMap<>();
+
+  static {
+    DATE_FORMATTER_MAP.put(YYYY_MM_DD, DateTimeFormatter.ofPattern(YYYY_MM_DD));
+    DATE_FORMATTER_MAP.put(YYYY_MM_DD_HH_MM_SS, DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS));
+    DATE_FORMATTER_MAP.put(YYYY_MM_DD_HH_MM_SS_SSS,
+        DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_SSS));
+    DATE_FORMATTER_MAP.put(YYMMDDHHMMSSSSS, DateTimeFormatter.ofPattern(YYMMDDHHMMSSSSS));
+  }
+
 
   /**
    * 将 LocalDateTime 转换成 Date
@@ -43,6 +80,33 @@ public class DateUtils {
     return Date.from(instant);
   }
 
+  /**
+   * 格式化LocalDateTime
+   *
+   * @param date   LocalDateTime
+   * @param format 时间格式
+   * @return 时间字符串
+   */
+  public static String formatLocaleDateTime(LocalDateTime date, String format) {
+    if (date == null) {
+      return null;
+    }
+    return LocalDateTimeUtil.format(date, DATE_FORMATTER_MAP.get(format));
+  }
+
+  /**
+   * 格式化LocalDate
+   *
+   * @param date   LocalDate
+   * @param format 时间格式
+   * @return 时间字符串
+   */
+  public static String formatLocaleDate(LocalDate date, String format) {
+    if (date == null) {
+      return null;
+    }
+    return LocalDateTimeUtil.format(date, DATE_FORMATTER_MAP.get(format));
+  }
 
   /**
    * 将 Date 转换成 LocalDateTime
@@ -143,6 +207,34 @@ public class DateUtils {
    */
   public static boolean isYesterday(LocalDateTime date) {
     return LocalDateTimeUtil.isSameDay(date, LocalDateTime.now().minusDays(1));
+  }
+
+  /**
+   * 解析时间
+   *
+   * @param dateStr 时间字符串
+   * @param format  时间格式
+   * @return LocalDateTime
+   */
+  public static LocalDateTime parseDateTimeFormat(String dateStr, String format) {
+    if (dateStr == null) {
+      return null;
+    }
+    return LocalDateTime.parse(dateStr, DATE_FORMATTER_MAP.get(format));
+  }
+
+  /**
+   * 解析时间
+   *
+   * @param dateStr 时间字符串
+   * @param format  时间格式
+   * @return LocalDate
+   */
+  public static LocalDate parseDateFormat(String dateStr, String format) {
+    if (dateStr == null) {
+      return null;
+    }
+    return LocalDate.parse(dateStr, DATE_FORMATTER_MAP.get(format));
   }
 
 }

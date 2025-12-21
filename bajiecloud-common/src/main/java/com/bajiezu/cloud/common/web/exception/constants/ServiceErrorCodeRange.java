@@ -11,8 +11,10 @@ package com.bajiezu.cloud.common.web.exception.constants;
  */
 public class ServiceErrorCodeRange {
 
+  // 模块 customer 错误码区间 [1-001-000-000 ~ 1-002-000-000)]
   // 模块 system 错误码区间 [1-002-000-000 ~ 1-003-000-000)
-  // 模块 pay 错误码区间 [1-003-000-000 ~ 1-004-000-000)
+  // 模块 order 错误码区间 [1-003-000-000 ~ 1-004-000-000)
+  // 模块 pay 错误码区间 [1-004-000-000 ~ 1-005-000-000)
 
 
 }

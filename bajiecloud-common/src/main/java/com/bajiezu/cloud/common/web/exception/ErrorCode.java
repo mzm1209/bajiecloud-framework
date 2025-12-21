@@ -1,5 +1,7 @@
 package com.bajiezu.cloud.common.web.exception;
 
+import com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeConstants;
+import com.bajiezu.cloud.common.web.exception.constants.ServiceErrorCodeRange;
 import lombok.Data;
 
 /**
