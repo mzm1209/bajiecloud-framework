@@ -6,6 +6,7 @@ import com.bajiezu.cloud.framework.security.context.LoginUserContext;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jodd.util.StringUtil;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -73,13 +74,13 @@ public class SecurityFrameworkUtils {
         if (tokenCookie != null && StrUtil.isNotBlank(tokenCookie.getValue())) {
             return tokenCookie.getValue();
         }
-        /*String token = (String) request.getSession().getAttribute(COOKIE_NAME);
+        String token = (String) request.getSession().getAttribute(COOKIE_NAME);
         if (StringUtil.isNotBlank(token)) {
             return token;
-        }*/
+        }
 
         // 2. 获得 Token。优先级：Header > Parameter
-        String token = request.getHeader(headerName);
+        token = request.getHeader(headerName);
         if (StrUtil.isEmpty(token)) {
             token = request.getParameter(parameterName);
         }
