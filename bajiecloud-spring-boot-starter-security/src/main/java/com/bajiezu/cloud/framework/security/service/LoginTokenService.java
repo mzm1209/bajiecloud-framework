@@ -71,6 +71,7 @@ public class LoginTokenService {
                 .expiration(expireDate)             // 过期时间
                 .signWith(getJwtSecretKey(), Jwts.SIG.HS256) // 新版API：签名
                 .compact();
+        loginUser.setToken(jwtToken);
         redisService.saveUser(jwtToken, loginUser, expiredDuration);
         return jwtToken;
     }
