@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.bajiezu.cloud.common.util.json.databind.TimestampLocalDateTimeDeserializer;
 import com.bajiezu.cloud.common.util.json.databind.TimestampLocalDateTimeSerializer;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -13,15 +14,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JSON 工具类
@@ -41,6 +41,7 @@ public class JsonUtils {
         .addSerializer(LocalDateTime.class, TimestampLocalDateTimeSerializer.INSTANCE)
         .addDeserializer(LocalDateTime.class, TimestampLocalDateTimeDeserializer.INSTANCE);
     objectMapper.registerModules(simpleModule);
+    JacksonTypeHandler.setObjectMapper(objectMapper);
   }
 
   /**
@@ -52,6 +53,7 @@ public class JsonUtils {
    */
   public static void init(ObjectMapper objectMapper) {
     JsonUtils.objectMapper = objectMapper;
+    JacksonTypeHandler.setObjectMapper(objectMapper);
   }
 
   @SneakyThrows

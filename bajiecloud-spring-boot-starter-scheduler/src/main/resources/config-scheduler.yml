@@ -1,0 +1,4 @@
+spring:
+  config:
+    import:
+      - optional:nacos:schedulerx.yml?group=COMMON_GROUP&namespace=common

@@ -29,6 +29,9 @@
     <!--        <module>bajiecloud-spring-boot-starter-redis</module>-->
     <module>bajiecloud-spring-boot-starter-web</module>
     <module>bajiecloud-spring-boot-starter-security</module>
+    <module>bajiecloud-spring-boot-starter-scheduler</module>
+    <module>bajiecloud-spring-boot-starter-rocketmq</module>
+
     <!--        <module>bajiecloud-spring-boot-starter-websocket</module>-->
 
     <!--        <module>bajiecloud-spring-boot-starter-monitor</module>-->

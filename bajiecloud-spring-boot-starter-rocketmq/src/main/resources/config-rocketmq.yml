@@ -1,0 +1,6 @@
+spring:
+  config:
+    import:
+      - optional:nacos:rocketmq.yml?group=COMMON_GROUP&namespace=common
+
+

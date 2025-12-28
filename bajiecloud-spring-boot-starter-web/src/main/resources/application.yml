@@ -113,6 +113,11 @@ spring:
       - optional:nacos:actuator.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:common-${spring.profiles.active:dev}.yml?group=COMMON_GROUP&namespace=common
       - optional:nacos:${spring.application.name}.yml?group=DEFAULT_GROUP&namespace=common
+      # 引入阿里云的 xxl-job 配置，也就是 schedulerx
+      - optional:classpath:config-scheduler.yml
+      # 阿里云的rocketmq
+      - optional:classpath:config-rocketmq.yml
+
 
 
 
