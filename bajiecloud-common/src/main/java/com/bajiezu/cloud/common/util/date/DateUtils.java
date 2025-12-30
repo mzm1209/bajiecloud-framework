@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -235,6 +236,48 @@ public class DateUtils {
       return null;
     }
     return LocalDate.parse(dateStr, DATE_FORMATTER_MAP.get(format));
+  }
+
+  /**
+   * 将Date设置为当天的开始时间（00:00:00.000）
+   * 使用Java 8+ LocalDateTime实现（推荐）
+   *
+   * @param date 原始日期
+   * @return 当天开始时间的Date对象
+   */
+  public static Date getBeginOfDayWithJava8(Date date) {
+    if (date == null) {
+      return null;
+    }
+
+    LocalDate localDate = date.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
+
+    LocalDateTime startOfDay = localDate.atStartOfDay();
+
+    return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+  }
+
+  /**
+   * 将Date设置为当天的结束时间（23:59:59.999）
+   * 使用Java 8+ LocalDateTime实现（推荐）
+   *
+   * @param date 原始日期
+   * @return 当天结束时间的Date对象
+   */
+  public static Date getEndOfDayWithJava8(Date date) {
+    if (date == null) {
+      return null;
+    }
+
+    LocalDate localDate = date.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
+
+    LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
+
+    return Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
   }
 
 }
