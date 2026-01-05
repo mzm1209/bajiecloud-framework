@@ -260,7 +260,7 @@ public class DateUtils {
   }
 
   /**
-   * 将Date设置为当天的结束时间（23:59:59.999）
+   * 将Date设置为当天的结束时间（23:59:59.000）
    * 使用Java 8+ LocalDateTime实现（推荐）
    *
    * @param date 原始日期
@@ -275,7 +275,7 @@ public class DateUtils {
             .atZone(ZoneId.systemDefault())
             .toLocalDate();
 
-    LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
+    LocalDateTime endOfDay = localDate.atTime(23, 59, 59, 0);
 
     return Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
   }
