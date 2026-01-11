@@ -5,10 +5,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -239,8 +239,7 @@ public class DateUtils {
   }
 
   /**
-   * 将Date设置为当天的开始时间（00:00:00.000）
-   * 使用Java 8+ LocalDateTime实现（推荐）
+   * 将Date设置为当天的开始时间（00:00:00.000） 使用Java 8+ LocalDateTime实现（推荐）
    *
    * @param date 原始日期
    * @return 当天开始时间的Date对象
@@ -251,8 +250,8 @@ public class DateUtils {
     }
 
     LocalDate localDate = date.toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate();
 
     LocalDateTime startOfDay = localDate.atStartOfDay();
 
@@ -260,8 +259,7 @@ public class DateUtils {
   }
 
   /**
-   * 将Date设置为当天的结束时间（23:59:59.000）
-   * 使用Java 8+ LocalDateTime实现（推荐）
+   * 将Date设置为当天的结束时间（23:59:59.000） 使用Java 8+ LocalDateTime实现（推荐）
    *
    * @param date 原始日期
    * @return 当天结束时间的Date对象
@@ -272,12 +270,25 @@ public class DateUtils {
     }
 
     LocalDate localDate = date.toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate();
 
     LocalDateTime endOfDay = localDate.atTime(23, 59, 59, 0);
 
     return Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
+  }
+
+
+  public static int calculateDaysBetween(LocalDateTime startDate, LocalDateTime endDate) {
+    return (int) ChronoUnit.DAYS.between(startDate, endDate);
+  }
+
+  public static int calculateDaysBetween(LocalDate startDate, LocalDate endDate) {
+    return calculateDaysBetween(startDate.atStartOfDay(), endDate.atStartOfDay());
+  }
+
+  public static int calculateDaysBetween(Date startDate, Date endDate) {
+    return calculateDaysBetween(of(startDate), of(endDate));
   }
 
 }

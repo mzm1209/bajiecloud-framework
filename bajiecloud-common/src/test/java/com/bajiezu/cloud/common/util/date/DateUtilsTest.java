@@ -1,6 +1,8 @@
 package com.bajiezu.cloud.common.util.date;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,4 +24,19 @@ class DateUtilsTest {
 
 
   }
+
+  @Test
+  void calculateDaysBetween() {
+    LocalDateTime startDate = LocalDateTime.of(2025, 12, 21, 0, 0, 0);
+    LocalDateTime endDate = LocalDateTime.of(2025, 12, 25, 0, 0, 0);
+    Assertions.assertEquals(4, DateUtils.calculateDaysBetween(startDate, endDate));
+    LocalDate startDate1 = LocalDate.of(2025, 12, 21);
+    LocalDate endDate1 = LocalDate.of(2025, 12, 25);
+    Assertions.assertEquals(4, DateUtils.calculateDaysBetween(startDate1, endDate1));
+    Date startDate2 = DateUtils.buildTime(2025, 12, 21, 0, 0, 0);
+    Date endDate2 = DateUtils.buildTime(2025, 12, 25, 0, 0, 0);
+    Assertions.assertEquals(4, DateUtils.calculateDaysBetween(startDate2, endDate2));
+
+  }
+
 }
