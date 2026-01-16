@@ -1,2 +1,3 @@
 com.bajiezu.cloud.common.config.OssConfig
 com.bajiezu.cloud.common.service.UploadServiceImpl
+com.bajiezu.cloud.common.esign.EsignService
