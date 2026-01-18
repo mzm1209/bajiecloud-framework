@@ -4,10 +4,12 @@ import static com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeCo
 
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.util.servlet.ServletUtils;
+import com.bajiezu.cloud.common.web.cloud.constants.RpcConstants;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.framework.security.context.LoginUserContext;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.service.RedisService;
+import com.bajiezu.cloud.framework.security.util.LoginUserUtils;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,6 +45,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private Set<String> permitAllPaths;
   @Setter
   private Set<String> noNeedLoginPath;
+
 
   /**
    * 登录有效期，各个需要登录的业务需要自行设置
@@ -109,6 +112,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         SecurityFrameworkUtils.TOKEN_PARAMETER_NAME);
     if (StrUtil.isEmpty(token)) {
       return null;
+    }
+    String feginHeader = request.getHeader(RpcConstants.FEGIN_REQUEST_HEADER);
+    boolean isFromFegin = StrUtil.equals(RpcConstants.FEGIN_REQUEST_HEADER_VALUE, feginHeader);
+    // fegin 的请求需要特殊处理，因为 fegin 是在 system 服务中调用的，所以需要特殊处理
+    if (isFromFegin && StrUtil.equals(SecurityFrameworkUtils.getSecurityToken(), token)) {
+      return LoginUserUtils.buildSystemSecurityUser(token);
     }
     return redisService.getUser(token, tokenExpireDuration);
   }

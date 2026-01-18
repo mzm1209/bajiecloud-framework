@@ -1,5 +1,6 @@
 package com.bajiezu.cloud.framework.security.util;
 
+import com.bajiezu.cloud.common.constants.UserTypeEnum;
 import com.bajiezu.cloud.framework.security.context.LoginUserContext;
 import com.bajiezu.cloud.framework.security.po.LoginInfoEntity;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
@@ -17,6 +18,16 @@ public class LoginUserUtils {
     LoginUser<T> loginUser = LoginUserContext.getLoginUser();
     Assert.notNull(loginUser, "用户未登录");
     return loginUser;
+  }
+
+  public static void initSystemSecurityUser(String securityToken) {
+    LoginUserContext.setLoginUser(buildSystemSecurityUser(securityToken));
+  }
+
+  public static <T extends LoginInfoEntity> LoginUser<T> buildSystemSecurityUser(
+      String securityToken) {
+    return new LoginUser<T>().setUserType(UserTypeEnum.SYSTEM.getValue()).setId(0L)
+        .setToken(securityToken);
   }
 
   /**

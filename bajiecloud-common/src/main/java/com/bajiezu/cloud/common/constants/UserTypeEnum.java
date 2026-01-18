@@ -14,7 +14,9 @@ import lombok.Getter;
 public enum UserTypeEnum implements ArrayValuable<Integer> {
 
   CUSTOMER(1, "客户"), // 面向 c 端，普通用户
-  MEMBER(2, "管理员"); // 面向 b 端，管理后台
+  MEMBER(2, "管理员"), // 面向 b 端，管理后台
+
+  SYSTEM(3, "系统用户"); // 系统发起的请求，无需登录认证
 
   public static final Integer[] ARRAYS = Arrays.stream(values()).map(UserTypeEnum::getValue)
       .toArray(Integer[]::new);
