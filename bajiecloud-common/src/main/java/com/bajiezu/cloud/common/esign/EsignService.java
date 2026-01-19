@@ -23,6 +23,9 @@ import java.util.Map;
 @Slf4j
 @Service
 public class EsignService {
+    private static final Object lock = new Object(); // 用于线程安全
+    // 添加一个静态标志，确保只注册一次
+    private static boolean isClientRegistered = false;
     /**
      * 应用ID
      */
@@ -38,7 +41,7 @@ public class EsignService {
      */
     @Value("${esign.apiUrl}")
     private String apiUrl;
-
+    private ServiceClient serviceClient;
     private AccountService acctService;
     private TemplateSealService templateSealService;
     private AuthService authService;
@@ -51,10 +54,7 @@ public class EsignService {
      * 返回企业账号ID
      */
     public String addOrgAccount(OrganizeParam param) throws DefineException {
-        if (acctService == null) {
-            registerClient();
-            acctService = getServiceClient().accountService();
-        }
+        ensureServicesInitialized();
         AddAccountResult acctRst = acctService.addAccount(param);
         log.info("创建企业账号，acctRst:{}", JSONObject.toJSONString(acctRst));
         if (acctRst.getErrCode() != 0) {
@@ -70,10 +70,7 @@ public class EsignService {
      * 返回企业印章图片数据
      */
     public String createOfficialSeal(String accountId) throws DefineException {
-        if (templateSealService == null) {
-            registerClient();
-            templateSealService = getServiceClient().templateSealService();
-        }
+        ensureServicesInitialized();
         OrganizeTemplateType type = OrganizeTemplateType.STAR; // 印章模板类型,可选：STAR-标准公章 | DEDICATED-圆形无五角星章 | OVAL-椭圆形印章
         SealColor color = SealColor.RED;    // 印章颜色：RED-红色 | BLUE-蓝色 | BLACK-黑色
         String roundText = "";  // 印章里的企业名称（生成印章中的上弦文）,与accountId必须二选一传值
@@ -93,10 +90,7 @@ public class EsignService {
      * 【线上】发起企业授权书签署任务
      */
     public String createAuth(OnlineCreateAuthParam onlineCreateAuthParam) throws DefineException {
-        if (authService == null) {
-            registerClient();
-            authService = getServiceClient().authService();
-        }
+        ensureServicesInitialized();
         OnlineCreateAuthResult onlineCreateAuthResult = authService.createAuth(onlineCreateAuthParam);
         if (onlineCreateAuthResult.getErrCode() != 0) {
             log.info("发起企业授权失败：errCode = {},msg = {}",
@@ -109,13 +103,26 @@ public class EsignService {
     }
 
     /**
+     * description 获取用户授权结果（按授权ID查询）
+     * 授权状态，1-进行中 2-授权成功 3-授权失败 4-取消授权
+     */
+    public int queryAuth(String authId) throws DefineException {
+        ensureServicesInitialized();
+        AuthInfoResult authInfoResult = authService.queryAuth(authId);
+        if (authInfoResult.getErrCode() != 0) {
+            log.info("获取用户授权结果（按授权ID查询）失败：errCode={},msg={}",
+                    authInfoResult.getErrCode(), authInfoResult.getMsg());
+        } else {
+            log.info("获取用户授权结果（按授权ID查询）成功，授权状态status={},授权说明authDes={}", authInfoResult.getStatus(), authInfoResult.getAuthDes());
+        }
+        return authInfoResult.getStatus();
+    }
+
+    /**
      * 填充PDF模板
      */
     public void fillTemplateByPdfFile(SignFilePdfParam file, Map<String, Object> txtFields) throws DefineException {
-        if (pdfDocumentService == null) {
-            registerClient();
-            pdfDocumentService = getServiceClient().pdfDocumentService();
-        }
+        ensureServicesInitialized();
         FileCreateFromTemplateResult rst = pdfDocumentService.createFileFromTemplate(file, true, txtFields);
         if (rst.getErrCode() != 0) {
             throw new DefineException(MessageFormat.format("本地PDF模板生成失败：errCode={0},errMsg={1}", rst.getErrCode(), rst.getMsg()));
@@ -128,10 +135,7 @@ public class EsignService {
      * 企业签署
      */
     public void orgSignByPdfFile(OrgSignParam orgSignParam) throws DefineException {
-        if (userSignService == null) {
-            registerClient();
-            userSignService = getServiceClient().userSignService();
-        }
+        ensureServicesInitialized();
         FileDigestSignResult signRst = userSignService.orgSign(orgSignParam);
         log.info("签署结果：{}", signRst);
         if (signRst.getErrCode() != 0) {
@@ -144,6 +148,7 @@ public class EsignService {
      * 平台自身PDF文件签署
      */
     public void platformSignByPdfFile(PlatformSignParam platformSignParam) throws DefineException {
+        ensureServicesInitialized();
         FileDigestSignResult signRst = platformSignService.platformSign(platformSignParam);
         log.info("平台自身签署结果，signRst:{}", signRst);
         if (signRst.getErrCode() != 0) {
@@ -152,7 +157,31 @@ public class EsignService {
         }
     }
 
-    private ServiceClient getServiceClient() throws DefineException {
+    // 新增一个方法来确保服务初始化
+    private void ensureServicesInitialized() throws DefineException {
+        if (!isClientRegistered) {
+            synchronized (lock) {
+                if (!isClientRegistered) {
+                    registerClient();
+                    initializeServices();
+                    isClientRegistered = true;
+                }
+            }
+        }
+    }
+
+    // 初始化各个服务
+    private void initializeServices() throws DefineException {
+        serviceClient = getServiceClient();
+        acctService = serviceClient.accountService();
+        templateSealService = serviceClient.templateSealService();
+        authService = serviceClient.authService();
+        pdfDocumentService = serviceClient.pdfDocumentService();
+        userSignService = serviceClient.userSignService();
+        platformSignService = serviceClient.platformSignService();
+    }
+
+    private synchronized ServiceClient getServiceClient() throws DefineException {
         ServiceClient serviceClient = ServiceClientManager.get(projectId);
         if (serviceClient == null) {
             throw new DefineException(MessageFormat.format(
