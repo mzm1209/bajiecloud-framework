@@ -1,14 +1,18 @@
 package com.bajiezu.cloud.common.web.pojo;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import cn.hutool.core.lang.func.Func1;
+import cn.hutool.core.lang.func.LambdaUtil;
+import com.bajiezu.cloud.common.util.string.StrUtils;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Schema(description = "分页参数")
 @Data
@@ -36,8 +40,33 @@ public class PageParam implements Serializable {
   @Schema(description = "是否需要查总数,默认都需要", requiredMode = RequiredMode.NOT_REQUIRED, example = "true")
   private boolean searchCount = true;
 
-  public <T> IPage<T> toPage() {
+  public <T> Page<T> toPage() {
     return new Page<>(pageNo, pageSize, searchCount);
+  }
+
+  public <T> Page<T> toPage(OrderItem orderItem) {
+    Page<T> page = new Page<>(pageNo, pageSize, searchCount);
+    if (orderItem != null) {
+      page.addOrder(orderItem);
+    }
+    return page;
+  }
+
+  /**
+   * 使用 Lambda 表达式构建分页对象
+   *
+   * @param func  排序字段的 Lambda 表达式
+   * @param isAsc 是否升序
+   * @param <T>   实体类类型
+   * @param <R>   排序字段类型
+   * @return 分页对象
+   */
+  public <T, R> Page<T> toPage(Func1<T, R> func, boolean isAsc) {
+    String fieldName = LambdaUtil.getFieldName(func);
+    // 将驼峰式字段名转换为下划线格式
+    String underlineFieldName = StrUtils.camelToUnderline(fieldName);
+    OrderItem orderItem = isAsc ? OrderItem.asc(underlineFieldName) : OrderItem.desc(underlineFieldName);
+    return toPage(orderItem);
   }
 
 }
