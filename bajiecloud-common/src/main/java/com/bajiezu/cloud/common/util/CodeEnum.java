@@ -7,4 +7,8 @@ public interface CodeEnum {
 
   int getCode();
 
+  String name();
+
+  String getDesc();
+
 }

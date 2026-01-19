@@ -24,5 +24,7 @@ public interface RpcConstants {
 
   String FEGIN_REQUEST_HEADER = "X-Fegin-Request";
 
+  String FEGIN_REQUEST_HEADER_VALUE = "feign";
+
 
 }
