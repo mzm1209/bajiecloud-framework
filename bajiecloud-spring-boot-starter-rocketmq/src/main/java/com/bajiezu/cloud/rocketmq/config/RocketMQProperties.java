@@ -13,6 +13,11 @@ import org.springframework.context.annotation.Configuration;
 public class RocketMQProperties {
 
   /**
+   * mq服务地址
+   */
+  private String nameServer;
+
+  /**
    * rocket 中topic 和 consumerGroup 的后缀 暂定 dev 环境都是 dev 测试环境都是 test 生产环境没有后缀
    */
   private String envSuffix;
