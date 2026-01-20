@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,6 +22,8 @@ public class RocketMQProperties {
    * rocket 中topic 和 consumerGroup 的后缀 暂定 dev 环境都是 dev 测试环境都是 test 生产环境没有后缀
    */
   private String envSuffix;
+
+  private ConsumerConfig consumer = new ConsumerConfig();
 
   /**
    * topic 配置 其中key在 ServiceName 中维护
@@ -63,5 +66,21 @@ public class RocketMQProperties {
      */
     private String consumerGroup;
 
+  }
+
+  /**
+   * 消费者配置类
+   */
+  @Data
+  public static class ConsumerConfig {
+    /**
+     * 阿里云 AccessKey
+     */
+    private String accessKey;
+
+    /**
+     * 阿里云 SecretKey
+     */
+    private String secretKey;
   }
 }
