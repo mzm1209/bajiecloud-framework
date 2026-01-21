@@ -1,4 +1,4 @@
-package com.bajiezu.cloud.common.config;
+package com.bajiezu.cloud.scheduler.config;
 
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import lombok.extern.slf4j.Slf4j;
