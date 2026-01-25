@@ -80,12 +80,12 @@ public class FeginMethodExecuteUtils {
     message = StringUtils.defaultIfBlank(message, errorCode.getMsg());
     if (!result.isSuccess()) {
       log.error("execute feign method error, result: {}", result);
-      throw ServiceExceptionUtil.exception(errorCode, message, result.getMsg());
+      throw ServiceExceptionUtil.exception0(errorCode.getCode(), message, result.getMsg());
     }
     T resultData = result.getData();
     if (checkNotNull && resultData == null) {
       log.error("execute feign method error, result data is null, result: {}", result);
-      throw ServiceExceptionUtil.exception(errorCode, message, "result data is null");
+      throw ServiceExceptionUtil.exception0(errorCode.getCode(), message, "result data is null");
     }
     return result.getData();
 
