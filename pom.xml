@@ -24,27 +24,12 @@
 
   <modules>
     <module>bajiecloud-common</module>
-    <!--        <module>bajiecloud-spring-boot-starter-env</module>-->
-    <!--        <module>bajiecloud-spring-boot-starter-mybatis</module>-->
-    <!--        <module>bajiecloud-spring-boot-starter-redis</module>-->
     <module>bajiecloud-spring-boot-starter-web</module>
     <module>bajiecloud-spring-boot-starter-security</module>
     <module>bajiecloud-spring-boot-starter-scheduler</module>
     <module>bajiecloud-spring-boot-starter-rocketmq</module>
-
-    <!--        <module>bajiecloud-spring-boot-starter-websocket</module>-->
-
-    <!--        <module>bajiecloud-spring-boot-starter-monitor</module>-->
-    <!--            <module>bajiecloud-spring-boot-starter-protection</module>-->
-    <!--        <module>yudao-spring-boot-starter-job</module>-->
-    <!--        <module>yudao-spring-boot-starter-mq</module>-->
     <module>bajiecloud-spring-boot-starter-rpc</module>
-
-    <!--        <module>yudao-spring-boot-starter-excel</module>-->
-    <!--        <module>yudao-spring-boot-starter-test</module>-->
-
-    <!--        <module>yudao-spring-boot-starter-biz-data-permission</module>-->
-    <!--        <module>yudao-spring-boot-starter-biz-ip</module>-->
+    <module>bajiecloud-spring-boot-starter-excel</module>
   </modules>
 
   <build>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.bajiezu.cloud</groupId>
+    <artifactId>bajiecloud-framework</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>bajiecloud-spring-boot-starter-excel</artifactId>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>Excel 拓展</description>
+
+  <dependencies>
+
+    <!-- 工具类相关 -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>easyexcel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.bajiezu.cloud</groupId>
+      <artifactId>bajiecloud-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- RPC 远程调用相关 -->
+    <dependency>
+      <groupId>com.bajiezu.cloud</groupId>
+      <artifactId>bajiecloud-spring-boot-starter-security</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>provided</scope>
+      <!-- 设置为 provided，只有 ExcelUtils 使用 -->
+    </dependency>
+
+    <!-- Web 相关 -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <scope>provided</scope>
+      <!-- 设置为 provided，只有 ExcelUtils 使用 -->
+    </dependency>
+
+    <!-- Spring 核心 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
