@@ -1,13 +1,19 @@
 package com.bajiezu.cloud.excel.export;
 
 import cn.hutool.core.thread.NamedThreadFactory;
+import cn.hutool.json.JSONUtil;
 import com.bajiezu.cloud.common.oss.AliyunOss;
+import com.bajiezu.cloud.common.web.pojo.CommonResult;
+import com.bajiezu.cloud.excel.export.dto.ExportTaskAddDTO;
+import com.bajiezu.cloud.excel.export.dto.ExportTaskUpdateDTO;
+import com.bajiezu.cloud.framework.security.util.FeginMethodExecuteUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -28,6 +34,8 @@ public abstract class AbstractExportService {
 
     @Autowired
     private AliyunOss aliyunOss;
+    @Autowired
+    private ExportApi exportApi;
 
     @PostConstruct
     public void init() {
@@ -79,7 +87,18 @@ public abstract class AbstractExportService {
      * @param source    来源
      * @return 任务ID
      */
-    protected abstract Long createDownloadTask(Long userId, Long partnerId, String fileName, Object params, Integer source);
+    private Long createDownloadTask(Long userId, Long partnerId, String fileName, Object params, Integer source) {
+        ExportTaskAddDTO exportTaskAddDTO = new ExportTaskAddDTO();
+        exportTaskAddDTO.setFileName(fileName);
+        exportTaskAddDTO.setSource(source);
+        exportTaskAddDTO.setStatus(TASK_STATUS_PROCESSING);
+        exportTaskAddDTO.setPartnerId(partnerId);
+        exportTaskAddDTO.setCreateTime(new Date());
+        exportTaskAddDTO.setCreatorId(userId);
+        exportTaskAddDTO.setExtJson(JSONUtil.toJsonStr(params));
+        CommonResult<Long> exportTaskResult = exportApi.addTask(exportTaskAddDTO);
+        return exportTaskResult.getData();
+    }
 
     /**
      * 创建导出文件
@@ -102,7 +121,17 @@ public abstract class AbstractExportService {
         if (filePath == null) {
             return null;
         }
-        return aliyunOss.uploadFile(new File(filePath), fileName);
+        File file = new File(filePath);
+        try {
+            return aliyunOss.uploadFile(file, fileName);
+        } catch (Exception e) {
+            log.error("上传文件到阿里云失败，filePath: {}, error: {}", filePath, e.getMessage(), e);
+        } finally {
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -113,5 +142,13 @@ public abstract class AbstractExportService {
      * @param fileUrl    文件下载地址
      * @param failReason 失败原因
      */
-    protected abstract void updateDownloadTask(Long taskId, int taskStatus, String fileUrl, String failReason);
+    private void updateDownloadTask(Long taskId, int taskStatus, String fileUrl, String failReason) {
+        ExportTaskUpdateDTO downloadTaskUpdateDTO = new ExportTaskUpdateDTO();
+        downloadTaskUpdateDTO.setTaskId(taskId);
+        downloadTaskUpdateDTO.setStatus(taskStatus);
+        downloadTaskUpdateDTO.setFilePath(fileUrl);
+        downloadTaskUpdateDTO.setUpdateTime(new Date());
+        downloadTaskUpdateDTO.setFailReason(failReason);
+        FeginMethodExecuteUtils.execute(() -> exportApi.updateTask(downloadTaskUpdateDTO), true);
+    }
 }
