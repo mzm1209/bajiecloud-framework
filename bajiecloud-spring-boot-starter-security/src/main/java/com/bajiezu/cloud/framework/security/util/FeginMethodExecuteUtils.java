@@ -4,9 +4,10 @@ import com.bajiezu.cloud.common.web.exception.ErrorCode;
 import com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeConstants;
 import com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
-import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.function.Supplier;
 
 @Slf4j
 public class FeginMethodExecuteUtils {
@@ -46,7 +47,6 @@ public class FeginMethodExecuteUtils {
    * @param <T>        调用 feign 方法的返回结果类型
    * @return 调用 feign 方法的返回结果
    */
-  @Deprecated
   public static <T> T execute(Supplier<CommonResult<T>> supplier, boolean ignoreAuth,
       ErrorCode errorCode, String message) {
     return execute(supplier, ignoreAuth, true, errorCode, message);
@@ -63,7 +63,6 @@ public class FeginMethodExecuteUtils {
    * @param <T>          调用 feign 方法的返回结果类型
    * @return 调用 feign 方法的返回结果
    */
-  @Deprecated
   public static <T> T execute(Supplier<CommonResult<T>> supplier, boolean ignoreAuth,
       boolean checkNotNull, ErrorCode errorCode, String message) {
     CommonResult<T> result;
