@@ -66,7 +66,7 @@ public abstract class AbstractExportService {
             } catch (Exception e) {
                 taskStatus = TASK_STATUS_FAILED;
                 log.error("下载任务执行失败，taskId: {}, error: {}", taskId, e.getMessage(), e);
-                failReason = StringUtils.isNotBlank(e.getMessage()) ? e.getMessage().substring(0, 2000) : "下载任务执行失败";
+                failReason = StringUtils.isNotBlank(e.getMessage()) ? e.getMessage().substring(0, Math.min(e.getMessage().length() - 1, 2000)) : "下载任务执行失败";
             }
             updateDownloadTask(taskId, taskStatus, fileUrl, failReason);
         });
