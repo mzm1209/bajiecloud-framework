@@ -4,10 +4,9 @@ import com.bajiezu.cloud.common.web.exception.ErrorCode;
 import com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeConstants;
 import com.bajiezu.cloud.common.web.exception.util.ServiceExceptionUtil;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
+import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.function.Supplier;
 
 @Slf4j
 public class FeginMethodExecuteUtils {
@@ -74,7 +73,7 @@ public class FeginMethodExecuteUtils {
       }
     } catch (Exception e) {
       log.error("execute feign method error,", e);
-      throw ServiceExceptionUtil.exception(GlobalErrorCodeConstants.FEGIN_EXECUTE_ERROR);
+      throw ServiceExceptionUtil.exception(errorCode, e.getMessage());
     }
     message = StringUtils.defaultIfBlank(message, errorCode.getMsg());
     if (!result.isSuccess()) {
