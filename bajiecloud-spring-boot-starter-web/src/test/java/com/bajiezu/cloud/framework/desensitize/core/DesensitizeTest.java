@@ -49,7 +49,7 @@ public class DesensitizeTest {
     assertEquals("998800********31", d.getBankCard());
     assertEquals("粤A6***6", d.getCarLicense());
     assertEquals("0108*****22", d.getFixedPhone());
-    assertEquals("530321**********11", d.getIdCard());
+    assertEquals("530321********4611", d.getIdCard());
     assertEquals("******", d.getPassword());
     assertEquals("132****5917", d.getPhoneNumber());
     assertEquals("#######", d.getSlider1());
