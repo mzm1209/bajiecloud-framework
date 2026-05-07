@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.bajiezu.cloud</groupId>
+    <artifactId>bajiecloud-framework</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>bajiecloud-spring-boot-starter-alipay</artifactId>
+  <packaging>jar</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>支付宝 SDK 通用配置：负责装配 AlipayClient（小程序 / 支付商户）。仅提供 Client Bean，业务调用由各业务模块自行薄包装。</description>
+
+  <dependencies>
+
+    <!-- 支付宝官方 SDK（实例化版本，线程安全，支持多商户） -->
+    <dependency>
+      <groupId>com.alipay.sdk</groupId>
+      <artifactId>alipay-sdk-java</artifactId>
+    </dependency>
+
+    <!-- @Resource 注解 -->
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+    </dependency>
+
+    <!-- 工具类（StringUtils 用于空值判断） -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+
+    <!-- Spring Boot 配置元数据生成（IDE 提示用） -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- @AutoConfiguration / @ConfigurationProperties / 日志门面 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- @EventListener / RefreshScopeRefreshedEvent -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-context</artifactId>
+    </dependency>
+
+  </dependencies>
+</project>

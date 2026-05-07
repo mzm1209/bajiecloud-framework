@@ -30,6 +30,7 @@
     <module>bajiecloud-spring-boot-starter-rocketmq</module>
     <module>bajiecloud-spring-boot-starter-rpc</module>
     <module>bajiecloud-spring-boot-starter-excel</module>
+    <module>bajiecloud-spring-boot-starter-alipay</module>
   </modules>
 
   <build>
