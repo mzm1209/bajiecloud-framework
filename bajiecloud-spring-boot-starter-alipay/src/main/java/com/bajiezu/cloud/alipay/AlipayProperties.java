@@ -52,5 +52,15 @@ public class AlipayProperties {
          * 签名类型，默认 RSA2。
          */
         private String signType = "RSA2";
+
+        /**
+         * 支付结果异步通知地址，仅 {@code pay} 配置块使用。
+         */
+        private String notifyUrl;
+
+        /**
+         * 退款结果异步通知地址，仅 {@code pay} 配置块使用。
+         */
+        private String refundNotifyUrl;
     }
 }

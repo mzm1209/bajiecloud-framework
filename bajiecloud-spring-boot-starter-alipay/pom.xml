@@ -20,6 +20,12 @@
       <artifactId>alipay-sdk-java</artifactId>
     </dependency>
 
+    <!-- bizContent JSON 序列化 -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
     <!-- @Resource 注解 -->
     <dependency>
       <groupId>jakarta.annotation</groupId>

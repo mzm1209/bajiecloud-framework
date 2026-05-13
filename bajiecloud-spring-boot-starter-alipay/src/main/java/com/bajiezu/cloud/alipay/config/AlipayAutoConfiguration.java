@@ -4,6 +4,10 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.bajiezu.cloud.alipay.AlipayClientHolder;
 import com.bajiezu.cloud.alipay.AlipayProperties;
+import com.bajiezu.cloud.alipay.service.AlipayCallbackService;
+import com.bajiezu.cloud.alipay.service.AlipayPayService;
+import com.bajiezu.cloud.alipay.service.impl.AlipayCallbackServiceImpl;
+import com.bajiezu.cloud.alipay.service.impl.AlipayPayServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,9 +20,8 @@ import org.springframework.context.event.EventListener;
 /**
  * 支付宝 SDK 自动装配。
  *
- * <p>仅做"配置 → Client Bean"，不封装任何业务 API。OAuth、下单、退款、回调验签等业务调用
- * 由各业务模块自己写薄包装（注入 {@link AlipayClientHolder} 拿到 {@link AlipayClient} 后直接
- * 调 SDK）。
+ * <p>装配三类 Bean：①{@link AlipayClientHolder}（持有底层 SDK Client）；②{@link AlipayPayService}（交易门面）；
+ * ③{@link AlipayCallbackService}（回调验签）。业务模块只需依赖后两者，{@link AlipayClient} 不直接对外暴露。
  *
  * <p>Nacos 配置变更时，监听 {@link RefreshScopeRefreshedEvent} 整体重建 Client 实例。
  */
@@ -39,6 +42,16 @@ public class AlipayAutoConfiguration {
         rebuild(holder, props);
         log.info(">>>>>>>>>>> alipay client init.");
         return holder;
+    }
+
+    @Bean
+    public AlipayPayService alipayPayService() {
+        return new AlipayPayServiceImpl();
+    }
+
+    @Bean
+    public AlipayCallbackService alipayCallbackService() {
+        return new AlipayCallbackServiceImpl();
     }
 
     /**
@@ -77,3 +90,4 @@ public class AlipayAutoConfiguration {
         );
     }
 }
+
