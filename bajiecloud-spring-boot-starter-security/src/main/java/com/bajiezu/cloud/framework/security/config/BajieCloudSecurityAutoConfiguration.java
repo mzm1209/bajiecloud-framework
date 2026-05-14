@@ -1,10 +1,12 @@
 package com.bajiezu.cloud.framework.security.config;
 
 import com.bajiezu.cloud.framework.security.core.AuthenticationEntryPointImpl;
+import com.bajiezu.cloud.framework.security.filter.AppTokenAuthenticationFilter;
 import com.bajiezu.cloud.framework.security.filter.TokenAuthenticationFilter;
 import com.bajiezu.cloud.framework.security.service.RedisService;
 import com.bajiezu.cloud.framework.security.service.SecurityFrameworkService;
 import com.bajiezu.cloud.framework.security.service.SecurityFrameworkServiceImpl;
+import com.bajiezu.cloud.framework.security.service.AppLoginTokenService;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
@@ -67,6 +69,18 @@ public class BajieCloudSecurityAutoConfiguration {
     @Bean
     public TokenAuthenticationFilter authenticationTokenFilter(RedisService redisService) {
         return new TokenAuthenticationFilter(redisService);
+    }
+
+
+
+    @Bean
+    public AppTokenAuthenticationFilter appAuthenticationTokenFilter(RedisService redisService) {
+        return new AppTokenAuthenticationFilter(redisService);
+    }
+
+    @Bean
+    public AppLoginTokenService appLoginTokenService() {
+        return new AppLoginTokenService(86400000L);
     }
 
     @Bean("ss") // 使用 Spring Security 的缩写，方便使用
