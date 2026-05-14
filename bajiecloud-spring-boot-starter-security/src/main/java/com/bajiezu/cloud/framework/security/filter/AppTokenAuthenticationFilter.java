@@ -45,7 +45,7 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
       FilterChain chain)
       throws IOException, ServletException {
     String requestUri = request.getRequestURI();
-    if (!requestUri.startsWith("/api/app/")) {
+    if (!isAppPath(requestUri)) {
       chain.doFilter(request, response);
       return;
     }
@@ -74,6 +74,11 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
     } finally {
       AppLoginUserContext.clear();
     }
+  }
+
+
+  private boolean isAppPath(String requestUri) {
+    return requestUri.startsWith("/app/") || requestUri.startsWith("/api/app/");
   }
 
   private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {
