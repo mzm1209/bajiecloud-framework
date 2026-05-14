@@ -8,10 +8,12 @@ import com.bajiezu.cloud.framework.security.util.AppSecurityFrameworkUtils;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * APP LoginUser 的 RequestInterceptor：Feign 请求时透传 app-user-token。
+ * APP LoginUser 的 RequestInterceptor 实现类：Feign 请求时，将 APP LoginUser 设置到 header 中
  */
+@Slf4j
 public class AppLoginUserRequestInterceptor implements RequestInterceptor {
 
   @Override
@@ -21,7 +23,7 @@ public class AppLoginUserRequestInterceptor implements RequestInterceptor {
     if (user == null) {
       return;
     }
-    requestTemplate.header(AppSecurityFrameworkUtils.APP_TOKEN_HEADER, user.getToken());
+    requestTemplate.header(AppSecurityFrameworkUtils.APP_LOGIN_USER_HEADER, user.getToken());
     requestTemplate.header("X-Request-ID", RequestContext.getRequestId());
     requestTemplate.header(FEGIN_REQUEST_HEADER, "feign");
   }
