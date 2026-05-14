@@ -64,21 +64,19 @@ public class AppLoginTokenService {
   }
 
   public boolean validateToken(String token) {
-    if (isJwtToken(token)) {
-      try {
-        Jwts.parser()
-            .setSigningKey(getJwtSecretKey())
-            .parseClaimsJws(token);
-        if (!APP_TOKEN_DOMAIN.equals(getTokenDomain(token))) {
-          return false;
-        }
-        return redisService.existsAppUser(token);
-      } catch (JwtException | IllegalArgumentException e) {
-        log.warn("APP JWT Token check failed: {}", token, e);
+    if (!isJwtToken(token)) {
+      return false;
+    }
+    try {
+      Map<String, Object> claims = parseClaimsCompat(token);
+      if (!APP_TOKEN_DOMAIN.equals(claims.get("tokenDomain"))) {
         return false;
       }
+      return redisService.existsAppUser(token);
+    } catch (Exception e) {
+      log.warn("APP JWT Token check failed: {}", token, e);
+      return false;
     }
-    return false;
   }
 
   public LoginUser<?> getLoginUser(String token) {
@@ -89,15 +87,31 @@ public class AppLoginTokenService {
     redisService.deleteAppUser(token);
   }
 
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> parseClaimsCompat(String token) throws Exception {
+    Object parser = Jwts.parser();
+    try {
+      // JJWT 新版：parser().verifyWith(key).build().parseSignedClaims(token).getPayload()
+      Object parserBuilder = parser.getClass().getMethod("verifyWith", SecretKey.class)
+          .invoke(parser, getJwtSecretKey());
+      Object builtParser = parserBuilder.getClass().getMethod("build").invoke(parserBuilder);
+      Object jws = builtParser.getClass().getMethod("parseSignedClaims", String.class)
+          .invoke(builtParser, token);
+      Object payload = jws.getClass().getMethod("getPayload").invoke(jws);
+      return (Map<String, Object>) payload;
+    } catch (NoSuchMethodException ignored) {
+      // JJWT 旧版：parser().setSigningKey(key).parseClaimsJws(token).getBody()
+      Object configured = parser.getClass().getMethod("setSigningKey", java.security.Key.class)
+          .invoke(parser, getJwtSecretKey());
+      Object jws = configured.getClass().getMethod("parseClaimsJws", String.class)
+          .invoke(configured, token);
+      Object body = jws.getClass().getMethod("getBody").invoke(jws);
+      return (Map<String, Object>) body;
+    }
+  }
+
   private boolean isJwtToken(String token) {
     return token != null && token.chars().filter(ch -> ch == '.').count() == 2;
   }
 
-  private String getTokenDomain(String token) {
-    return (String) Jwts.parser()
-        .setSigningKey(getJwtSecretKey())
-        .parseClaimsJws(token)
-        .getBody()
-        .get("tokenDomain");
-  }
 }
