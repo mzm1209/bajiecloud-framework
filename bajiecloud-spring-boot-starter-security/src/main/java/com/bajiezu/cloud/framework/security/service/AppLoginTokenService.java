@@ -4,12 +4,15 @@ import com.bajiezu.cloud.framework.security.po.LoginUser;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
+import jakarta.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * APP 端 token 服务，生成与校验逻辑与平台一致，数据域独立。
@@ -18,16 +21,24 @@ import lombok.extern.slf4j.Slf4j;
 public class AppLoginTokenService {
 
   private static final String APP_TOKEN_DOMAIN = "APP";
-  private static final String JWT_SECRET = "your-256-bit-secret-key-here-must-be-at-least-32-bytes";
 
-  private final RedisService redisService;
   private final Duration expiredDuration;
   private final long expiration;
 
-  public AppLoginTokenService(RedisService redisService, long tokenExpiration) {
-    this.redisService = redisService;
+  @Value("${jwt.secret:defaultSecretKey:bajiezu-cloud}")
+  private String secretKey;
+
+  @Resource
+  private RedisService redisService;
+
+  public AppLoginTokenService(long tokenExpiration) {
     this.expiredDuration = Duration.ofMillis(tokenExpiration);
     this.expiration = tokenExpiration;
+  }
+
+  private SecretKey getJwtSecretKey() {
+    byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+    return Keys.hmacShaKeyFor(keyBytes);
   }
 
   public String generateToken(LoginUser<?> loginUser) {
@@ -47,30 +58,27 @@ public class AppLoginTokenService {
         .expiration(expireDate)
         .signWith(getJwtSecretKey(), Jwts.SIG.HS256)
         .compact();
-
     loginUser.setToken(jwtToken);
     redisService.saveAppUser(jwtToken, loginUser, expiredDuration);
     return jwtToken;
   }
 
   public boolean validateToken(String token) {
-    if (!isJwtToken(token)) {
-      return false;
-    }
-    try {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> claims = (Map<String, Object>) Jwts.parser()
-          .setSigningKey(getJwtSecretKey())
-          .parseClaimsJws(token)
-          .getBody();
-      if (!APP_TOKEN_DOMAIN.equals(claims.get("tokenDomain"))) {
+    if (isJwtToken(token)) {
+      try {
+        Jwts.parser()
+            .setSigningKey(getJwtSecretKey())
+            .parseClaimsJws(token);
+        if (!APP_TOKEN_DOMAIN.equals(getTokenDomain(token))) {
+          return false;
+        }
+        return redisService.existsAppUser(token);
+      } catch (JwtException | IllegalArgumentException e) {
+        log.warn("APP JWT Token check failed: {}", token, e);
         return false;
       }
-      return redisService.existsAppUser(token);
-    } catch (JwtException | IllegalArgumentException e) {
-      log.warn("APP JWT Token check failed: {}", token, e);
-      return false;
     }
+    return false;
   }
 
   public LoginUser<?> getLoginUser(String token) {
@@ -81,11 +89,15 @@ public class AppLoginTokenService {
     redisService.deleteAppUser(token);
   }
 
-  private Key getJwtSecretKey() {
-    return Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
-  }
-
   private boolean isJwtToken(String token) {
     return token != null && token.chars().filter(ch -> ch == '.').count() == 2;
+  }
+
+  private String getTokenDomain(String token) {
+    return (String) Jwts.parser()
+        .setSigningKey(getJwtSecretKey())
+        .parseClaimsJws(token)
+        .getBody()
+        .get("tokenDomain");
   }
 }

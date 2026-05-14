@@ -79,8 +79,8 @@ public class BajieCloudSecurityAutoConfiguration {
     }
 
     @Bean
-    public AppLoginTokenService appLoginTokenService(RedisService redisService) {
-        return new AppLoginTokenService(redisService, 86400000L);
+    public AppLoginTokenService appLoginTokenService() {
+        return new AppLoginTokenService(86400000L);
     }
 
     @Bean("ss") // 使用 Spring Security 的缩写，方便使用
