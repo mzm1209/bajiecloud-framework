@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +26,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * APP Token 过滤器，验证 token 有效性，验证通过后加入 Spring Security 与 AppLoginUserContext
+ * APP Token 过滤器，验证 token 的有效性，验证通过后加入 Spring Security 与 AppLoginUserContext
  */
 @RequiredArgsConstructor
 @Slf4j
 public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
 
   private final RedisService redisService;
+  private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+  @Setter
+  private Set<String> permitAllPaths = Collections.emptySet();
+  @Setter
+  private Set<String> noNeedLoginPath = Collections.emptySet();
 
   @Setter
   private Duration tokenExpireDuration = Duration.ofDays(1);
@@ -45,7 +52,8 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
       FilterChain chain)
       throws IOException, ServletException {
     String requestUri = request.getRequestURI();
-    if (!isAppPath(requestUri)) {
+    if (isSwaggerPath(requestUri)
+        || permitAllPaths.contains(requestUri)) {
       chain.doFilter(request, response);
       return;
     }
@@ -76,9 +84,8 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
     }
   }
 
-
-  private boolean isAppPath(String requestUri) {
-    return requestUri.startsWith("/app/") || requestUri.startsWith("/api/app/");
+  private boolean isSwaggerPath(String requestUri) {
+    return noNeedLoginPath.stream().anyMatch(path -> antPathMatcher.match(path, requestUri));
   }
 
   private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {

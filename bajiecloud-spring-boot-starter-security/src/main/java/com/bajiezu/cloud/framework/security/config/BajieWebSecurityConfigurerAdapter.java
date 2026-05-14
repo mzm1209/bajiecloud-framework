@@ -173,6 +173,8 @@ public class BajieWebSecurityConfigurerAdapter {
     tokenAuthenticationFilter.setPermitAllPaths(new HashSet<>(permitAllUrls.values()));
     httpSecurity.addFilterBefore(tokenAuthenticationFilter,
         UsernamePasswordAuthenticationFilter.class);
+    appTokenAuthenticationFilter.setNoNeedLoginPath(noNeedLoginPaths);
+    appTokenAuthenticationFilter.setPermitAllPaths(new HashSet<>(permitAllUrls.values()));
     httpSecurity.addFilterBefore(appTokenAuthenticationFilter,
         UsernamePasswordAuthenticationFilter.class);
 
