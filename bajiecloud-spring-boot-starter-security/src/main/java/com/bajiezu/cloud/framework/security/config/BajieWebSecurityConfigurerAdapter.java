@@ -5,6 +5,7 @@ import static com.bajiezu.cloud.common.util.collection.CollectionUtils.convertLi
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import com.bajiezu.cloud.framework.security.filter.AppTokenAuthenticationFilter;
 import com.bajiezu.cloud.framework.security.filter.TokenAuthenticationFilter;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import com.google.common.collect.HashMultimap;
@@ -63,6 +64,9 @@ public class BajieWebSecurityConfigurerAdapter {
    */
   @Resource
   private TokenAuthenticationFilter tokenAuthenticationFilter;
+
+  @Resource
+  private AppTokenAuthenticationFilter appTokenAuthenticationFilter;
 
 
   @Resource
@@ -168,6 +172,8 @@ public class BajieWebSecurityConfigurerAdapter {
     tokenAuthenticationFilter.setNoNeedLoginPath(noNeedLoginPaths);
     tokenAuthenticationFilter.setPermitAllPaths(new HashSet<>(permitAllUrls.values()));
     httpSecurity.addFilterBefore(tokenAuthenticationFilter,
+        UsernamePasswordAuthenticationFilter.class);
+    httpSecurity.addFilterBefore(appTokenAuthenticationFilter,
         UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();
