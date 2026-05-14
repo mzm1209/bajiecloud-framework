@@ -58,11 +58,11 @@ public class AppLoginTokenService {
       return false;
     }
     try {
-      Map<String, Object> claims = Jwts.parser()
-          .verifyWith(getJwtSecretKey())
-          .build()
-          .parseSignedClaims(token)
-          .getPayload();
+      @SuppressWarnings("unchecked")
+      Map<String, Object> claims = (Map<String, Object>) Jwts.parser()
+          .setSigningKey(getJwtSecretKey())
+          .parseClaimsJws(token)
+          .getBody();
       if (!APP_TOKEN_DOMAIN.equals(claims.get("tokenDomain"))) {
         return false;
       }
