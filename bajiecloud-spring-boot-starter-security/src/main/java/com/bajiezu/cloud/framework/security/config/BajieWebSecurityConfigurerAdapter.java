@@ -141,7 +141,7 @@ public class BajieWebSecurityConfigurerAdapter {
                 .requestMatchers("/**/actuator/*").permitAll()
 
                 // 你已有的放行规则（登录、Swagger等）
-                .requestMatchers("/**/api/auth/*", "/**/swagger-ui/*", "/**/v3/api-docs/*").permitAll()
+                .requestMatchers("/**/api/auth/*", "/**/app/auth/*", "/**/swagger-ui/*", "/**/v3/api-docs/*").permitAll()
                 // 添加 Swagger UI 资源放行
                 .requestMatchers(HttpMethod.GET, noNeedLoginPaths.toArray(new String[0])).permitAll()
                 // 1.2 设置 @PermitAll 无需认证
