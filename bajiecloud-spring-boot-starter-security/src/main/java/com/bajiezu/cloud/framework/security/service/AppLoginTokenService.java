@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,8 +39,13 @@ public class AppLoginTokenService {
   }
 
   private SecretKey getJwtSecretKey() {
-    byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-    return Keys.hmacShaKeyFor(keyBytes);
+    try {
+      byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+      byte[] digestBytes = MessageDigest.getInstance("SHA-256").digest(keyBytes);
+      return Keys.hmacShaKeyFor(digestBytes);
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-256 algorithm not available", e);
+    }
   }
 
   public String generateToken(LoginUser<?> loginUser) {
