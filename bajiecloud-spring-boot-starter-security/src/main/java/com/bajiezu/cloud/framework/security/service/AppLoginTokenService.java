@@ -13,6 +13,8 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * APP 端 token 服务，生成与校验逻辑与平台一致，数据域独立。
@@ -37,8 +39,13 @@ public class AppLoginTokenService {
   }
 
   private SecretKey getJwtSecretKey() {
-    byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-    return Keys.hmacShaKeyFor(keyBytes);
+    try {
+      byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+      byte[] digestBytes = MessageDigest.getInstance("SHA-256").digest(keyBytes);
+      return Keys.hmacShaKeyFor(digestBytes);
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-256 algorithm not available", e);
+    }
   }
 
   public String generateToken(LoginUser<?> loginUser) {
