@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,10 +40,17 @@ public class LoginTokenService {
      * 生成安全的HMAC-SHA密钥 (JJWT 0.13.0+ 推荐方式)
      */
     private SecretKey getJwtSecretKey() {
-        // 关键：确保密钥字节长度满足算法要求（HS256需>=32字节/256位）
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-        // 如果密钥太短，这里可以自动补齐（生产环境建议从配置读取固定长度的密钥）
-        return Keys.hmacShaKeyFor(keyBytes);
+        if (keyBytes.length >= 32) {
+            return Keys.hmacShaKeyFor(keyBytes);
+        }
+        try {
+            // 对短密钥做 SHA-256 扩展，保证至少 256 bit（32 bytes）
+            byte[] hashedKey = MessageDigest.getInstance("SHA-256").digest(keyBytes);
+            return Keys.hmacShaKeyFor(hashedKey);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 algorithm is unavailable", e);
+        }
     }
 
     /**
