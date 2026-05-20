@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -53,6 +54,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   @Setter
   private Duration tokenExpireDuration = Duration.ofDays(1);
 
+  /**
+   * APP 接口匹配路径，平台过滤器遇到这些路径时直接放行，交由 AppTokenAuthenticationFilter 处理。
+   */
+  @Setter
+  private Set<String> appPathPatterns = new LinkedHashSet<>(Collections.singletonList("/app/**"));
+
   @Override
   @SuppressWarnings("NullableProblems")
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -60,7 +67,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       throws IOException, ServletException {
     // 情况一，基于 header[login-user] 获得用户，例如说来自 Gateway 或者其它服务透传
     String requestUri = request.getRequestURI();
-    if (isSwaggerPath(requestUri)
+    if (isAppPath(requestUri)
+        || isSwaggerPath(requestUri)
         || permitAllPaths.contains(requestUri)) {
       chain.doFilter(request, response);
       return;
@@ -104,6 +112,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     return noNeedLoginPath.stream().anyMatch(path -> antPathMatcher.match(path, requestUri));
   }
 
+  private boolean isAppPath(String requestUri) {
+    return appPathPatterns.stream().anyMatch(path -> antPathMatcher.match(path, requestUri));
+  }
 
   @SneakyThrows
   private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {

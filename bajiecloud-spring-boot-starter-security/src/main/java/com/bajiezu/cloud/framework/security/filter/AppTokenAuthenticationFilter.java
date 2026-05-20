@@ -37,9 +37,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
 
   private final RedisService redisService;
-  private static final String APP_PATH = "/app/**";
-  private static final String API_APP_PATH = "/api/app/**";
-
   private final AntPathMatcher antPathMatcher = new AntPathMatcher();
   @Setter
   private Set<String> permitAllPaths = Collections.emptySet();
@@ -54,10 +51,9 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                   FilterChain chain)
           throws IOException, ServletException {
-    String requestUri = normalizePath(request.getRequestURI());
-    if (shouldSkipAppFilter(requestUri)
-            || isSwaggerPath(requestUri)
-            || isPermitAllPath(requestUri)) {
+    String requestUri = request.getRequestURI();
+    if (isSwaggerPath(requestUri)
+            || permitAllPaths.contains(requestUri)) {
       chain.doFilter(request, response);
       return;
     }
@@ -89,34 +85,7 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private boolean isSwaggerPath(String requestUri) {
-    return noNeedLoginPath.stream()
-            .map(this::normalizePath)
-            .anyMatch(path -> antPathMatcher.match(path, requestUri));
-  }
-
-  private boolean shouldSkipAppFilter(String requestUri) {
-    return !antPathMatcher.match(APP_PATH, requestUri)
-            && !antPathMatcher.match(API_APP_PATH, requestUri);
-  }
-
-  private boolean isPermitAllPath(String requestUri) {
-    return permitAllPaths.stream()
-            .map(this::normalizePath)
-            .anyMatch(path -> antPathMatcher.match(path, requestUri));
-  }
-
-  private String normalizePath(String path) {
-    if (StrUtil.isBlank(path)) {
-      return "/";
-    }
-    String normalized = StrUtil.trim(path);
-    if (!StrUtil.startWith(normalized, "/")) {
-      normalized = "/" + normalized;
-    }
-    if (normalized.length() > 1 && normalized.endsWith("/")) {
-      normalized = normalized.substring(0, normalized.length() - 1);
-    }
-    return normalized;
+    return noNeedLoginPath.stream().anyMatch(path -> antPathMatcher.match(path, requestUri));
   }
 
   private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {
