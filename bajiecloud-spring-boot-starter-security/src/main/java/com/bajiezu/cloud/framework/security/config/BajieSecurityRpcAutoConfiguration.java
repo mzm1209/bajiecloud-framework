@@ -1,6 +1,8 @@
 package com.bajiezu.cloud.framework.security.config;
 
+import com.bajiezu.cloud.framework.security.rpc.AppLoginUserRequestInterceptor;
 import com.bajiezu.cloud.framework.security.rpc.LoginUserRequestInterceptor;
+import com.bajiezu.cloud.framework.security.util.AppSecurityFrameworkUtils;
 import com.bajiezu.cloud.framework.security.util.SecurityFrameworkUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -19,5 +21,11 @@ public class BajieSecurityRpcAutoConfiguration {
     return new LoginUserRequestInterceptor();
   }
 
+
+  @Bean
+  public AppLoginUserRequestInterceptor appLoginUserRequestInterceptor () {
+    AppSecurityFrameworkUtils.setSecurityToken(rpcSecurityToken);
+    return new AppLoginUserRequestInterceptor();
+  }
 
 }
