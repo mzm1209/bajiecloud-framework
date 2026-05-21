@@ -53,6 +53,17 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   @Setter
   private Duration tokenExpireDuration = Duration.ofDays(1);
 
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String requestUri = request.getRequestURI();
+    if (!requestUri.startsWith(RpcConstants.RPC_API_PREFIX)) {
+      return false;
+    }
+    return StrUtil.isBlank(request.getHeader(SecurityFrameworkUtils.LOGIN_USER_HEADER))
+        && StrUtil.isBlank(request.getParameter(SecurityFrameworkUtils.TOKEN_PARAMETER_NAME));
+  }
+
   @Override
   @SuppressWarnings("NullableProblems")
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -65,9 +76,16 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       chain.doFilter(request, response);
       return;
     }
+    String token = SecurityFrameworkUtils.getToken(request,
+        SecurityFrameworkUtils.LOGIN_USER_HEADER,
+        SecurityFrameworkUtils.TOKEN_PARAMETER_NAME);
+    if (StrUtil.isBlank(token)) {
+      chain.doFilter(request, response);
+      return;
+    }
     log.info("TokenAuthenticationFilter,requestUri:{}", requestUri);
     try {
-      LoginUser<?> loginUser = buildLoginUserByHeader(request);
+      LoginUser<?> loginUser = buildLoginUserByHeader(request, token);
       if (loginUser != null) {
         // 设置到 Spring Security 上下文
         UsernamePasswordAuthenticationToken authentication =
@@ -106,13 +124,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 
   @SneakyThrows
-  private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {
-    String token = SecurityFrameworkUtils.getToken(request,
-        SecurityFrameworkUtils.LOGIN_USER_HEADER,
-        SecurityFrameworkUtils.TOKEN_PARAMETER_NAME);
-    if (StrUtil.isEmpty(token)) {
-      return null;
-    }
+  private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request, String token) {
     String feginHeader = request.getHeader(RpcConstants.FEGIN_REQUEST_HEADER);
     boolean isFromFegin = StrUtil.equals(RpcConstants.FEGIN_REQUEST_HEADER_VALUE, feginHeader);
     // fegin 的请求需要特殊处理，因为 fegin 是在 system 服务中调用的，所以需要特殊处理

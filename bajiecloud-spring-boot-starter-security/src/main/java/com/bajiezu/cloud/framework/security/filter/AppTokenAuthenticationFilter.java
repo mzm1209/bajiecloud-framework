@@ -4,11 +4,13 @@ import static com.bajiezu.cloud.common.web.exception.constants.GlobalErrorCodeCo
 
 import cn.hutool.core.util.StrUtil;
 import com.bajiezu.cloud.common.util.servlet.ServletUtils;
+import com.bajiezu.cloud.common.web.cloud.constants.RpcConstants;
 import com.bajiezu.cloud.common.web.pojo.CommonResult;
 import com.bajiezu.cloud.framework.security.context.AppLoginUserContext;
 import com.bajiezu.cloud.framework.security.po.LoginUser;
 import com.bajiezu.cloud.framework.security.service.RedisService;
 import com.bajiezu.cloud.framework.security.util.AppSecurityFrameworkUtils;
+import com.bajiezu.cloud.framework.security.util.LoginUserUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +48,17 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
   @Setter
   private Duration tokenExpireDuration = Duration.ofDays(1);
 
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String requestUri = request.getRequestURI();
+    if (!requestUri.startsWith(RpcConstants.RPC_API_PREFIX)) {
+      return false;
+    }
+    return StrUtil.isBlank(request.getHeader(AppSecurityFrameworkUtils.APP_LOGIN_USER_HEADER))
+        && StrUtil.isBlank(request.getParameter(AppSecurityFrameworkUtils.APP_TOKEN_PARAMETER_NAME));
+  }
+
   @Override
   @SuppressWarnings("NullableProblems")
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -57,9 +70,14 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
       chain.doFilter(request, response);
       return;
     }
+    String token = AppSecurityFrameworkUtils.getToken(request);
+    if (StrUtil.isBlank(token)) {
+      chain.doFilter(request, response);
+      return;
+    }
     log.info("AppTokenAuthenticationFilter,requestUri:{}", requestUri);
     try {
-      LoginUser<?> loginUser = buildLoginUserByHeader(request);
+      LoginUser<?> loginUser = buildLoginUserByHeader(request, token);
       if (loginUser != null) {
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(
@@ -88,10 +106,12 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
     return noNeedLoginPath.stream().anyMatch(path -> antPathMatcher.match(path, requestUri));
   }
 
-  private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {
-    String token = AppSecurityFrameworkUtils.getToken(request);
-    if (StrUtil.isEmpty(token)) {
-      return null;
+  private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request, String token) {
+    String feginHeader = request.getHeader(RpcConstants.FEGIN_REQUEST_HEADER);
+    boolean isFromFegin = StrUtil.equals(RpcConstants.FEGIN_REQUEST_HEADER_VALUE, feginHeader);
+    // fegin 的请求需要特殊处理，因为 fegin 是在 system 服务中调用的，所以需要特殊处理
+    if (isFromFegin && StrUtil.equals(AppSecurityFrameworkUtils.getSecurityToken(), token)) {
+      return LoginUserUtils.buildSystemSecurityUser(token);
     }
     return redisService.getAppUser(token, tokenExpireDuration);
   }
