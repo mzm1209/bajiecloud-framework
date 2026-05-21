@@ -57,11 +57,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     String requestUri = request.getRequestURI();
-    if (!requestUri.startsWith(RpcConstants.RPC_API_PREFIX)) {
-      return false;
-    }
-    return StrUtil.isBlank(request.getHeader(SecurityFrameworkUtils.LOGIN_USER_HEADER))
-        && StrUtil.isBlank(request.getParameter(SecurityFrameworkUtils.TOKEN_PARAMETER_NAME));
+    return requestUri.startsWith("/app");
   }
 
   @Override
