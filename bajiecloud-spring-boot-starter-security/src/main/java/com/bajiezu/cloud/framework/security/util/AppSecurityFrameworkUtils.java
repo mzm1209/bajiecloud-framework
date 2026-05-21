@@ -25,4 +25,14 @@ public class AppSecurityFrameworkUtils {
   public static LoginUser<?> getLoginUser() {
     return AppLoginUserContext.getLoginUser();
   }
+
+  private static String SECURITY_TOKEN;
+
+  public static String getSecurityToken() {
+    return SECURITY_TOKEN;
+  }
+
+  public static void setSecurityToken(String securityToken) {
+    SECURITY_TOKEN = securityToken;
+  }
 }
