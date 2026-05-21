@@ -70,9 +70,14 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
       chain.doFilter(request, response);
       return;
     }
+    String token = AppSecurityFrameworkUtils.getToken(request);
+    if (StrUtil.isBlank(token)) {
+      chain.doFilter(request, response);
+      return;
+    }
     log.info("AppTokenAuthenticationFilter,requestUri:{}", requestUri);
     try {
-      LoginUser<?> loginUser = buildLoginUserByHeader(request);
+      LoginUser<?> loginUser = buildLoginUserByHeader(request, token);
       if (loginUser != null) {
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(
@@ -101,11 +106,7 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
     return noNeedLoginPath.stream().anyMatch(path -> antPathMatcher.match(path, requestUri));
   }
 
-  private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request) {
-    String token = AppSecurityFrameworkUtils.getToken(request);
-    if (StrUtil.isEmpty(token)) {
-      return null;
-    }
+  private LoginUser<?> buildLoginUserByHeader(HttpServletRequest request, String token) {
     String feginHeader = request.getHeader(RpcConstants.FEGIN_REQUEST_HEADER);
     boolean isFromFegin = StrUtil.equals(RpcConstants.FEGIN_REQUEST_HEADER_VALUE, feginHeader);
     // fegin 的请求需要特殊处理，因为 fegin 是在 system 服务中调用的，所以需要特殊处理
