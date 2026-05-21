@@ -98,12 +98,12 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     String feginHeader = request.getHeader(RpcConstants.FEGIN_REQUEST_HEADER);
-    log.debug("feginHeader======="+feginHeader);
+    log.debug("appfeginHeader======="+feginHeader);
     boolean isFromFegin = StrUtil.equals(RpcConstants.FEGIN_REQUEST_HEADER_VALUE, feginHeader);
     // fegin 的请求需要特殊处理，因为 fegin 是在 system 服务中调用的，所以需要特殊处理
-    log.debug("isFromFegin======="+isFromFegin);
-    log.debug("Apptoken======="+AppSecurityFrameworkUtils.getSecurityToken());
-    log.debug("token======="+token);
+    log.debug("appisFromFegin======="+isFromFegin);
+    log.debug("appApptoken======="+AppSecurityFrameworkUtils.getSecurityToken());
+    log.debug("apptoken======="+token);
     if (isFromFegin && StrUtil.equals(AppSecurityFrameworkUtils.getSecurityToken(), token)) {
       return LoginUserUtils.buildSystemSecurityUser(token);
     }
