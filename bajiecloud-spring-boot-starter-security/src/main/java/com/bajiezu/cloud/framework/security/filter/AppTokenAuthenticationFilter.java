@@ -48,6 +48,17 @@ public class AppTokenAuthenticationFilter extends OncePerRequestFilter {
   @Setter
   private Duration tokenExpireDuration = Duration.ofDays(1);
 
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String requestUri = request.getRequestURI();
+    if (!requestUri.startsWith(RpcConstants.RPC_API_PREFIX)) {
+      return false;
+    }
+    return StrUtil.isBlank(request.getHeader(AppSecurityFrameworkUtils.APP_LOGIN_USER_HEADER))
+        && StrUtil.isBlank(request.getParameter(AppSecurityFrameworkUtils.APP_TOKEN_PARAMETER_NAME));
+  }
+
   @Override
   @SuppressWarnings("NullableProblems")
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
